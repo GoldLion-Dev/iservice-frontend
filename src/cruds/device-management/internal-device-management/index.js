@@ -43,6 +43,7 @@ import { AbilityContext } from "Can";
 import { useAbility } from "@casl/react";
 import GoogleMapComponent from "examples/Maps";
 import MultiSelectDataTable from "examples/Tables/MultiSelectDataTable";
+import { Visibility } from "@mui/icons-material";
 
 function InternalDeviceManagement() {
   let { state } = useLocation();
@@ -94,6 +95,10 @@ function InternalDeviceManagement() {
 
   const clickAddHandler = () => {
     navigate("/internal-device-management/new-device");
+  };
+
+  const clickViewHandler = (id) => {
+    navigate(`/internal-device-management/view-device/${id}`);
   };
 
   const clickEditHandler = (id) => {
@@ -228,6 +233,13 @@ function InternalDeviceManagement() {
         Cell: (info) => {
           return (
             <MDBox display="flex" alignItems="center">
+              {ability.can("view", "devices") && (
+                <Tooltip title="View Device">
+                  <IconButton onClick={() => clickViewHandler(info.cell.row.original.id)}>
+                    <MDTypography><Visibility /></MDTypography>
+                  </IconButton>
+                </Tooltip>
+              )}
               {ability.can("edit", "devices") && (
                 <Tooltip title="Edit Devoce">
                   <IconButton onClick={() => clickEditHandler(info.cell.row.original.id)}>

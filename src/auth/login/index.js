@@ -176,7 +176,7 @@ function Login() {
             </MDTypography>
           </MDTypography>
         </MDBox>
-        <MDBox mt={3} textAlign="center">
+        {/* <MDBox mt={3} textAlign="center">
           <MDTypography variant="button" color="text">
             Don&apos;t have an account?{" "}
             <MDTypography
@@ -190,7 +190,14 @@ function Login() {
               Sign up
             </MDTypography>
           </MDTypography>
-        </MDBox>
+        </MDBox> */}
+      <MDBox mt={5} textAlign="center">
+        <MDTypography>
+          <MDTypography>Rivio is currently invite only.</MDTypography>
+          Please email <a href="mailto:help@rivio.io">help@rivio.io</a> for assistance
+        </MDTypography>
+      </MDBox>
+
       </MDBox>
     </IllustrationLayout>
   );

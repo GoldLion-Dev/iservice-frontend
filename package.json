@@ -11,10 +11,13 @@
   },
   "dependencies": {
     "@asseinfo/react-kanban": "2.2.0",
+    "@aws-sdk/client-secrets-manager": "^3.606.0",
+    "@aws-sdk/credential-provider-cognito-identity": "^3.606.0",
     "@casl/ability": "^6.5.0",
     "@casl/react": "^3.1.0",
-    "@ckeditor/ckeditor5-build-classic": "^41.3.1",
-    "@ckeditor/ckeditor5-react": "^6.2.0",
+    "@ckeditor/ckeditor5-build-classic": "^41.4.2",
+    "@ckeditor/ckeditor5-mention": "^41.4.2",
+    "@ckeditor/ckeditor5-react": "^7.0.0",
     "@emotion/cache": "11.11.0",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
@@ -44,6 +47,7 @@
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.5.1",
     "@types/date-fns": "^2.6.0",
+    "aws-sdk": "^2.1651.0",
     "axios": "^1.5.1",
     "chart.js": "4.4.0",
     "chroma-js": "2.4.2",
@@ -58,7 +62,10 @@
     "jsonp": "^0.2.1",
     "jwt-decode": "^4.0.0",
     "material-react-toastify": "^2.0.1",
+    "moment": "^2.30.1",
+    "mui-datatables": "^4.3.0",
     "ng-fullcalendar": "^2.0.3",
+    "progressbar": "^1.3.0",
     "prop-types": "15.8.1",
     "react": "^18.0.0",
     "react-auto-complete-address-fields": "^1.0.1",
@@ -116,6 +123,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@svgr/webpack": "^8.1.0",
     "eslint": "8.50.0",
     "eslint-config-airbnb": "19.0.4",
     "eslint-config-prettier": "9.0.0",
@@ -127,5 +135,5 @@
     "prettier": "3.0.3"
   },
   "homepage": "https://material-dashboard-pro-react-nodejs.creative-tim.com/",
-  "proxy": "http://rivio.io"
+  "proxy": "https://rivio.io"
 }

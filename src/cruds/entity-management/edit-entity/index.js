@@ -187,6 +187,7 @@ const EditEntity = () => {
             const moduleLocations = res.data.included?.moduleLocations;
             if (moduleLocations) {
                 const addresses = moduleLocations.map(location => location.Address);
+                console.log(addresses, 'addresses')
                 const defaultIndex = moduleLocations.findIndex(location => location.is_default === true)
                 setAddresses(addresses);
                 setSelectedId(defaultIndex);
@@ -227,13 +228,13 @@ const EditEntity = () => {
         addresses.forEach(address => {
         if(address.status_type_id === '') {
             toast.warning('Please set Status of Address!', {
-            position: 'top-right',
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
+                position: 'top-right',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
             });
             hasInvalidAddress = true; // Set the flag to true if an invalid address is found
             return;
@@ -293,7 +294,7 @@ const EditEntity = () => {
         console.log(updatedEntity, 'updatedEntity')
         await CrudService.updateEntity(updatedEntity, id);
         navigate("/entity-management", {
-            state: { value: true, text: "The entity was successfully created" },
+            state: { value: true, text: "The entity was successfully Updated" },
         });
         } catch (err) {
         if (err.hasOwnProperty("errors")) {
@@ -329,201 +330,200 @@ const EditEntity = () => {
 
     return (
         <DashboardLayout>
-        <DashboardNavbar />
-        <ToastContainer/>
+            <DashboardNavbar />
+            <ToastContainer/>
 
-        <MDBox mt={5} mb={9}>
-            <Grid container justifyContent="center">
-            <Grid item xs={12} lg={8}>
-                <MDBox mt={6} mb={8} textAlign="center">
-                <MDBox mb={1}>
-                    <MDTypography variant="h3" fontWeight="bold">
-                    Edit Entity {id}
-                    </MDTypography>
-                </MDBox>
-                <MDTypography variant="h5" fontWeight="regular" color="secondary">
-                    This information will describe more about the entity.
-                </MDTypography>
-                </MDBox>
-                <Card>
-                <MDBox component="form" method="POST" onSubmit={submitHandler}>
-                    <MDBox display="flex" flexDirection="column" px={3} my={2}>
-                    <MDBox p={1}>
-                        <Autocomplete
-                            defaultValue=""
-                            options={entityTypes}
-                            getOptionLabel={(option) => (option.attributes ? option.attributes.type_name : "")}
-                            value={entityType ?? ""}
-                            onChange={(event, newEntityType) => {
-                                setEntityType(newEntityType);
-                            }}
-                            renderInput={(params) => (
-                                <FormField {...params} label="Entity Type" InputLabelProps={{ shrink: true }} required />
-                            )}
-                        />
-                        {entityType.attributes?.entity_type_id === 1 && (
-                            <>
-                                <FormField
-                                    type="text"
-                                    label="First Name"
-                                    name="firstName"
-                                    value={entity.firstName}
-                                    onChange={changeFirstNameHandler}
-                                    error={error.firstName}
-                                />
-                                {error.firstName && (
-                                <MDTypography variant="caption" color="error" fontWeight="light">
-                                    {error.textError}
-                                </MDTypography>
-                                )}
-
-                                <FormField
-                                    type="text"
-                                    label="Last Name"
-                                    name="lastName"
-                                    value={entity.lastName}
-                                    onChange={changeLastNameHandler}
-                                    error={error.lastName}
-                                />
-                                {error.lastName && (
-                                <MDTypography variant="caption" color="error" fontWeight="light">
-                                    {error.textError}
-                                </MDTypography>
-                                )}                                
-                            </>
-                        )}    
-
-                        
-                        {entityType.attributes?.entity_type_id === 2 && (
-                            <>
-                                <FormField
-                                    type="text"
-                                    label="Name"
-                                    name="name"
-                                    value={entity.name}
-                                    onChange={changeNameHandler}
-                                    error={error.name}
-                                />
-                                {error.name && (
-                                <MDTypography variant="caption" color="error" fontWeight="light">
-                                    {error.textError}
-                                </MDTypography>
-                                )}
-                            </>
-                        )}    
-                        
-                                    
-                        <Autocomplete
-                            defaultValue=""
-                            options={companies}
-                            getOptionLabel={(option) => (option.attributes ? option.attributes.name : "")}
-                            value={company ?? ""}
-                            onChange={(event, newCompany) => {
-                                setCompany(newCompany);
-                            }}
-                            renderInput={(params) => (
-                                <FormField {...params} label="Company" InputLabelProps={{ shrink: true }} required />
-                            )}
-                        />  
-
-                        <Autocomplete
-                            defaultValue=""
-                            options={statusEntity}
-                            getOptionLabel={(option) => (option.attributes ? option.attributes?.StatusType.status_name : "")}
-                            value={statusType ?? ""}
-                            onChange={(event, newStatus) => {
-                                setStatusType(newStatus);
-                            }}
-                            renderInput={(params) => (
-                                <FormField {...params} label="Status" InputLabelProps={{ shrink: true }} required />
-                            )}
-                        />    
-                        
-                        {/* <Autocomplete
-                            required
-                            defaultValue=""
-                            options={statusEntity}
-                            getOptionLabel={(option) => (option ? option.attributes?.StatusType?.status_name : "")}
-                            style={{ marginTop: "1rem" }}
-                            onChange={(e) => {setStatusType(e.target.value); console.log(e.target, '_____')}}
-                            renderInput={(params) => (
-                            <FormField {...params} label="Status" InputLabelProps={{ shrink: true }} />
-                            )}
-                        />                     */}
-                    </MDBox>
-
-                    <ModalModuleAddress addressTypes={addressTypes} statusOptions={statusAddress} addresses={addresses} setAddresses={setAddresses}  selectedId={selectedId} setSelectedId={setSelectedId} moduleData={items} moduleType="Item" attributeValue={attributeValue} setAttributeValue={setAttributeValue} module={module} setModule={setModule}/>
-                    <Card>
-                        <MDBox
-                        display="flex" px={3} my={2}
-                        >
-                            <MDTypography variant="h5" color="secondary"  fontWeight="bold">
-                            Contacts 
+            <MDBox mb={9}>
+                <Grid justifyContent="center">
+                    <Grid item xs={12} lg={8}>
+                        <MDBox textAlign="center">
+                        <MDBox mb={1}>
+                            <MDTypography variant="h3" fontWeight="bold">
+                            Edit Entity {id}
                             </MDTypography>
-                            <MDButton variant="gradient" color="dark" size="small" style={{marginLeft: "1.8rem"}} onClick={handleClick}>
-                            + Add Contact
-                            <Menu
-                                anchorEl={anchorEl}
-                                open={Boolean(anchorEl)}
-                                onClose={handleClose}
-                                onClick={handleMenuClick}
-                            >
-                                <MenuItem onClick={handleNewClick}>New Contact</MenuItem>
-                                <MenuItem onClick={handleSelectClick}>Select Contact(s)</MenuItem>
-                            </Menu>
-                            </MDButton>
                         </MDBox>
-                        {
-                            <ModalContact
-                                open={open} setOpen={setOpen}
-                                contactType={contactType} setContactType={setContactType}
-                                contactStatusType={contactStatusType} setContactStatusType={setContactStatusType}
-                                statusContact={statusContact} setStatusContact={setStatusContact}
-                                phoneAddresses={phoneAddresses} setPhoneAddresses={setPhoneAddresses}
-                                emailAddresses={emailAddresses} setEmailAddresses={setEmailAddresses}
-                                faxAddresses={faxAddresses} setFaxAddresses={setFaxAddresses}
-                                selectedPhoneId={selectedPhoneId} setSelectedPhoneId={setSelectedPhoneId}
-                                selectedEmailId={selectedEmailId} setSelectedEmailId={setSelectedEmailId}
-                                selectedFaxId={selectedFaxId} setSelectedFaxId={setSelectedFaxId}
-                                contact_first_name={contact_first_name} setContactFirstName={setContactFirstName}
-                                contact_last_name={contact_last_name} setContactLastName={setContactLastName}
-                            />
-                        }
-                        {
-                            <ModalSelectContact
-                                open={openSelect} setOpen={setOpenSelect} contacts={contacts} selectedContacts={selectedContacts} setSelectedContacts={setSelectedContacts}
-                            />
-                        }
+                        <MDTypography variant="h5" fontWeight="regular" color="secondary">
+                            This information will describe more about the entity.
+                        </MDTypography>
+                        </MDBox>
+                        <Card>
+                        <MDBox component="form" method="POST" onSubmit={submitHandler}>
+                            <MDBox display="flex" flexDirection="column" px={3} my={2}>
+                            <MDBox p={1}>
+                                <Autocomplete
+                                    defaultValue=""
+                                    options={entityTypes}
+                                    getOptionLabel={(option) => (option.attributes ? option.attributes.type_name : "")}
+                                    value={entityType ?? ""}
+                                    onChange={(event, newEntityType) => {
+                                        setEntityType(newEntityType);
+                                    }}
+                                    renderInput={(params) => (
+                                        <FormField {...params} label="Entity Type" InputLabelProps={{ shrink: true }} required />
+                                    )}
+                                />
+                                {entityType.attributes?.entity_type_id === 1 && (
+                                    <>
+                                        <FormField
+                                            type="text"
+                                            label="First Name"
+                                            name="firstName"
+                                            value={entity.firstName}
+                                            onChange={changeFirstNameHandler}
+                                            error={error.firstName}
+                                        />
+                                        {error.firstName && (
+                                        <MDTypography variant="caption" color="error" fontWeight="light">
+                                            {error.textError}
+                                        </MDTypography>
+                                        )}
 
-                    </Card>
-                    <MDBox ml="auto" mt={4} mb={2} display="flex" justifyContent="flex-end">
-                        <MDBox mx={2}>
-                        <MDButton
-                            variant="gradient"
-                            color="dark"
-                            size="small"
-                            px={2}
-                            mx={2}
-                            onClick={() =>
-                            navigate("/entity-management", {
-                                state: { value: false, text: "" },
-                            })
-                            }
-                        >
-                            Back
-                        </MDButton>
+                                        <FormField
+                                            type="text"
+                                            label="Last Name"
+                                            name="lastName"
+                                            value={entity.lastName}
+                                            onChange={changeLastNameHandler}
+                                            error={error.lastName}
+                                        />
+                                        {error.lastName && (
+                                        <MDTypography variant="caption" color="error" fontWeight="light">
+                                            {error.textError}
+                                        </MDTypography>
+                                        )}                                
+                                    </>
+                                )}    
+
+                                
+                                {entityType.attributes?.entity_type_id === 2 && (
+                                    <>
+                                        <FormField
+                                            type="text"
+                                            label="Name"
+                                            name="name"
+                                            value={entity.name}
+                                            onChange={changeNameHandler}
+                                            error={error.name}
+                                        />
+                                        {error.name && (
+                                        <MDTypography variant="caption" color="error" fontWeight="light">
+                                            {error.textError}
+                                        </MDTypography>
+                                        )}
+                                    </>
+                                )}    
+                                
+                                <Autocomplete
+                                    defaultValue=""
+                                    options={companies}
+                                    getOptionLabel={(option) => (option.attributes ? option.attributes.name : "")}
+                                    value={company ?? ""}
+                                    onChange={(event, newCompany) => {
+                                        setCompany(newCompany);
+                                    }}
+                                    renderInput={(params) => (
+                                        <FormField {...params} label="Company" InputLabelProps={{ shrink: true }} required />
+                                    )}
+                                />  
+
+                                <Autocomplete
+                                    defaultValue=""
+                                    options={statusEntity}
+                                    getOptionLabel={(option) => (option.attributes ? option.attributes?.StatusType.status_name : "")}
+                                    value={statusType ?? ""}
+                                    onChange={(event, newStatus) => {
+                                        setStatusType(newStatus);
+                                    }}
+                                    renderInput={(params) => (
+                                        <FormField {...params} label="Status" InputLabelProps={{ shrink: true }} required />
+                                    )}
+                                />    
+                                
+                                {/* <Autocomplete
+                                    required
+                                    defaultValue=""
+                                    options={statusEntity}
+                                    getOptionLabel={(option) => (option ? option.attributes?.StatusType?.status_name : "")}
+                                    style={{ marginTop: "1rem" }}
+                                    onChange={(e) => {setStatusType(e.target.value); console.log(e.target, '_____')}}
+                                    renderInput={(params) => (
+                                    <FormField {...params} label="Status" InputLabelProps={{ shrink: true }} />
+                                    )}
+                                />                     */}
+                            </MDBox>
+
+                            <ModalModuleAddress addressTypes={addressTypes} statusOptions={statusAddress} addresses={addresses} setAddresses={setAddresses}  selectedId={selectedId} setSelectedId={setSelectedId} moduleData={items} moduleType="Item" attributeValue={attributeValue} setAttributeValue={setAttributeValue} module={module} setModule={setModule}/>
+                            <Card>
+                                <MDBox
+                                display="flex" px={3} my={2}
+                                >
+                                    <MDTypography variant="h5" color="secondary"  fontWeight="bold">
+                                    Contacts 
+                                    </MDTypography>
+                                    <MDButton variant="gradient" color="dark" size="small" style={{marginLeft: "1.8rem"}} onClick={handleClick}>
+                                    + Add Contact
+                                    <Menu
+                                        anchorEl={anchorEl}
+                                        open={Boolean(anchorEl)}
+                                        onClose={handleClose}
+                                        onClick={handleMenuClick}
+                                    >
+                                        <MenuItem onClick={handleNewClick}>New Contact</MenuItem>
+                                        <MenuItem onClick={handleSelectClick}>Select Contact(s)</MenuItem>
+                                    </Menu>
+                                    </MDButton>
+                                </MDBox>
+                                {
+                                    <ModalContact
+                                        open={open} setOpen={setOpen}
+                                        contactType={contactType} setContactType={setContactType}
+                                        contactStatusType={contactStatusType} setContactStatusType={setContactStatusType}
+                                        statusContact={statusContact} setStatusContact={setStatusContact}
+                                        phoneAddresses={phoneAddresses} setPhoneAddresses={setPhoneAddresses}
+                                        emailAddresses={emailAddresses} setEmailAddresses={setEmailAddresses}
+                                        faxAddresses={faxAddresses} setFaxAddresses={setFaxAddresses}
+                                        selectedPhoneId={selectedPhoneId} setSelectedPhoneId={setSelectedPhoneId}
+                                        selectedEmailId={selectedEmailId} setSelectedEmailId={setSelectedEmailId}
+                                        selectedFaxId={selectedFaxId} setSelectedFaxId={setSelectedFaxId}
+                                        contact_first_name={contact_first_name} setContactFirstName={setContactFirstName}
+                                        contact_last_name={contact_last_name} setContactLastName={setContactLastName}
+                                    />
+                                }
+                                {
+                                    <ModalSelectContact
+                                        open={openSelect} setOpen={setOpenSelect} contacts={contacts} selectedContacts={selectedContacts} setSelectedContacts={setSelectedContacts}
+                                    />
+                                }
+
+                            </Card>
+                            <MDBox ml="auto" mt={4} mb={2} display="flex" justifyContent="flex-end">
+                                <MDBox mx={2}>
+                                <MDButton
+                                    variant="gradient"
+                                    color="dark"
+                                    size="small"
+                                    px={2}
+                                    mx={2}
+                                    onClick={() =>
+                                    navigate("/entity-management", {
+                                        state: { value: false, text: "" },
+                                    })
+                                    }
+                                >
+                                    Back
+                                </MDButton>
+                                </MDBox>
+                                <MDButton variant="gradient" color="dark" size="small" type="submit">
+                                Save
+                                </MDButton>
+                            </MDBox>
+                            </MDBox>
                         </MDBox>
-                        <MDButton variant="gradient" color="dark" size="small" type="submit">
-                        Save
-                        </MDButton>
-                    </MDBox>
-                    </MDBox>
-                </MDBox>
-                </Card>
-            </Grid>
-            </Grid>
-        </MDBox>
-        <Footer />
+                        </Card>
+                    </Grid>
+                </Grid>
+            </MDBox>
+            <Footer />
         </DashboardLayout>
     );
 };

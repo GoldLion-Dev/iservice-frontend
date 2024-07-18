@@ -25,7 +25,7 @@ function configs(labels, datasets) {
           pointBorderColor: "transparent",
           pointBackgroundColor: "rgba(255, 255, 255, .8)",
           borderColor: "rgba(255, 255, 255, .8)",
-          borderWidth: 4,
+          borderWidth: 1,
           backgroundColor: "transparent",
           fill: true,
           data: datasets.data,

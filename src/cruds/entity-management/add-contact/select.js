@@ -149,9 +149,12 @@ function ModalSelectContact({ open, setOpen, contacts, selectedContacts, setSele
   const addressHandler = () => {
     // setAddresses([...addresses, newAddress]);
     const filteredAddresses = contacts.filter(address => selectedRows.includes(address.id));
-    setSelectedContacts(filteredAddresses);
+    // setSelectedContacts(filteredAddresses);
+    setSelectedContacts(prevSelectedContacts => [...prevSelectedContacts, ...filteredAddresses]);
+
     setOpen(false);
   };
+
   return (
     <MDBox>
       <Card>
@@ -199,7 +202,6 @@ function ModalSelectContact({ open, setOpen, contacts, selectedContacts, setSele
           <Typography ml={3}>Selected Contact(s)</Typography>
           <DataTable table={dataTableData} />
         </MDBox>
-
       }
 
     </MDBox>

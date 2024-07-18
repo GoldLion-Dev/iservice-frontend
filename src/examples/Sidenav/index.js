@@ -40,6 +40,7 @@ import SidenavItem from "examples/Sidenav/SidenavItem";
 // Custom styles for the Sidenav
 import SidenavRoot from "examples/Sidenav/SidenavRoot";
 import sidenavLogoLabel from "examples/Sidenav/styles/sidenav";
+import CrudService from "services/cruds-service";
 
 // Material Dashboard 2 PRO React context
 import {
@@ -67,6 +68,8 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const items = pathname.split("/").slice(1);
   const itemParentName = items[1];
   const itemName = items[items.length - 1];
+  const [devices, setDevices] = useState([]);
+  const { isAuthenticated } = useContext(AuthContext);
 
   let textColor = "white";
 
@@ -83,6 +86,20 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     setOpenNestedCollapse(itemParentName);
   }, []);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await CrudService.getInternalDevices();
+        setDevices(response.data);
+      } catch (error) {
+        // Handle errors here, e.g., log the error or show a notification
+        console.error('Error fetching internal devices:', error);
+      }
+    };
+    console.log(isAuthenticated, 'isAuthenticated')
+    if(isAuthenticated) fetchData();
+  }, [isAuthenticated]);
+  
   useEffect(() => {
     // A function that sets the mini state of the sidenav.
     function handleMiniSidenav() {
@@ -103,6 +120,33 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     return () => window.removeEventListener("resize", handleMiniSidenav);
   }, [dispatch, location]);
 
+
+  const renderDeviceItems = devices.map((device, index) => {
+    let deviceParamValue = device.paramValue ? device.paramValue?.value : undefined;
+    let percent = deviceParamValue ? deviceParamValue.device_data?.percent_level : 0;
+    let alerts = device.alert;
+    let alertCnt = 0;
+    for (let i = 0; i < alerts.length; i++) {
+      if (alerts[i].status_type_id === 1) {
+          alertCnt++;
+      }
+    }
+  
+    return (
+      <NavLink to={`/internal-device-management/view-device/${device.id}`} key={index}>
+        <SidenavItem
+          key={index}
+          name={device?.attributes?.name + ': ' + percent + '%'}
+          route={`/internal-device-management/view-device/${device.id}`} 
+          icon={<Icon>devices</Icon>} 
+          active={pathname === `/internal-device-management/view-device/${device.id}`}
+          style={{ border: alertCnt > 0 ? '1px solid red' : 'none' }}
+
+        />
+      </NavLink>
+    );
+  });
+
   const handleLogOut = async () => {
     try {
       let user = await getCurrentUser();
@@ -115,21 +159,25 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   };
   // Render all the nested collapse items from the routes.js
   const renderNestedCollapse = (collapse) => {
-    const template = collapse.map(({ name, route, key, href }) =>
+    const template = collapse.map(({ name, route, key, href, type }) =>
       href ? (
-        <Link
-          key={key}
-          href={href}
-          target="_blank"
-          rel="noreferrer"
-          sx={{ textDecoration: "none" }}
-        >
-          <SidenavItem name={name} nested />
-        </Link>
+        <Can I="view" this={type}>
+          <Link
+            key={key}
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            sx={{ textDecoration: "none" }}
+          >
+            <SidenavItem name={name} nested />
+          </Link>
+        </Can>
       ) : (
-        <NavLink to={route} key={key} sx={{ textDecoration: "none" }}>
-          <SidenavItem name={name} active={route === pathname} nested />
-        </NavLink>
+        <Can I="view" this={type}>
+          <NavLink to={route} key={key} sx={{ textDecoration: "none" }}>
+            <SidenavItem name={name} active={route === pathname} nested />
+          </NavLink>
+        </Can>
       )
     );
 
@@ -141,20 +189,22 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
       let returnValue;
       if (collapse) {
         returnValue = (
-          <SidenavItem
-            key={key}
-            color={color}
-            name={name}
-            active={key === itemParentName ? "isParent" : false}
-            open={openNestedCollapse === key}
-            onClick={({ currentTarget }) =>
-              openNestedCollapse === key && currentTarget.classList.contains("MuiListItem-root")
-                ? setOpenNestedCollapse(false)
-                : setOpenNestedCollapse(key)
-            }
-          >
-            {renderNestedCollapse(collapse)}
-          </SidenavItem>
+          <Can I="view" this={type}>
+            <SidenavItem
+              key={key}
+              color={color}
+              name={name}
+              active={key === itemParentName ? "isParent" : false}
+              open={openNestedCollapse === key}
+              onClick={({ currentTarget }) =>
+                openNestedCollapse === key && currentTarget.classList.contains("MuiListItem-root")
+                  ? setOpenNestedCollapse(false)
+                  : setOpenNestedCollapse(key)
+              }
+            >
+              {renderNestedCollapse(collapse)}
+            </SidenavItem>
+          </Can>
         );
       } else {
         if (name !== "Logout") {
@@ -333,7 +383,21 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           (darkMode && !transparentSidenav && whiteSidenav)
         }
       />
-      <List>{renderRoutes}</List>
+      <List>
+        {renderRoutes}
+        <Divider />
+       
+        <SidenavCollapse
+          key="devices"
+          name="Devices"
+          icon={<Icon>devices</Icon>}
+          active={collapseName === "devices"} // Update with the appropriate key for the "Devices" section
+          open={openCollapse === "devices"} // Update with the appropriate key for the "Devices" section
+          onClick={() => (openCollapse === "devices" ? setOpenCollapse(false) : setOpenCollapse("devices"))}
+        >
+          {renderDeviceItems} 
+        </SidenavCollapse>
+      </List>
     </SidenavRoot>
   );
 }

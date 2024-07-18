@@ -67,6 +67,8 @@ import AuthService from "services/auth-service";
 import { Helmet } from "react-helmet";
 import EmailVerification from "auth/verify-email";
 import VerifyEmailPage from "auth/verify-email/verify";
+import PublicRoute from './pubroute';
+import Summary from "cruds/device-management/internal-device-management/summary";
 
 export default function App({ ability }) {
   const [controller, dispatch] = useMaterialUIController();
@@ -85,9 +87,10 @@ export default function App({ ability }) {
   const { pathname } = useLocation();
 
   const authContext = useContext(AuthContext);
-  const [userDetails, setUserDetails] = useState({ name: "", image: "" });
+  const [userDetails, setUserDetails] = useState({ name: "", image: "", role: "" });
 
   const [isDemo, setIsDemo] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setIsDemo(process.env.REACT_APP_IS_DEMO === "true");
@@ -145,15 +148,18 @@ export default function App({ ability }) {
     (async () => {
       const id = await authContext.getCurrentUser();
       const response = await AuthService.getProfile();
+      console.log(response, '----user-----')
       setUserDetails({
         name: response.data.attributes.name,
         image: response.data.attributes.profile_image,
+        role: response.included[0].id
       });
       const rules = await getPermissions(id);
+      setIsLoading(true);
       ability.update(rules);
     })();
   }, [authContext.isAuthenticated]);
-
+  
   const getRoutes = (allRoutes) =>
     allRoutes.map((route) => {
       if (route.key === "user-name") {
@@ -231,67 +237,93 @@ export default function App({ ability }) {
 
   return (
     <>
-      {isDemo && (
-        <Helmet>
-          <meta
-            name="keywords"
-            content="creative tim, updivision, material, node.js json:api, html dashboard, node.js, react, api admin, pro react node.js, html css dashboard node.js, material dashboard node.js, node.js api, pro react material dashboard, material admin, pro react dashboard, pro react admin, web dashboard, bootstrap 5 dashboard node.js, bootstrap 5, css3 dashboard, bootstrap 5 admin node.js, material dashboard bootstrap 5 node.js, frontend, api dashboard, responsive bootstrap 5 dashboard, api, material dashboard, material node.js bootstrap 5 dashboard, json:api"
-          />
-          <meta
-            name="description"
-            content="Full stack app with hundreds of reusable UI components powered by MUI component library, React and Node.js API"
-          />
-          <meta
-            itemProp="name"
-            content="Material Dashboard 2 React Node.js by Creative Tim & UPDIVISION"
-          />
-          <meta
-            itemProp="description"
-            content="Full stack app with hundreds of reusable UI components powered by MUI component library, React and Node.js API"
-          />
-          <meta
-            itemProp="image"
-            content="https://s3.amazonaws.com/creativetim_bucket/products/689/original/react-material-dashboard-pro-nodejs.jpg?1664790326"
-          />
-          <meta name="twitter:card" content="product" />
-          <meta name="twitter:site" content="@creativetim" />
-          <meta
-            name="twitter:title"
-            content="Material Dashboard 2 React Node.js by Creative Tim & UPDIVISION"
-          />
-          <meta
-            name="twitter:description"
-            content="Full stack app with hundreds of reusable UI components powered by MUI component library, React and Node.js API"
-          />
-          <meta name="twitter:creator" content="@creativetim" />
-          <meta
-            name="twitter:image"
-            content="https://s3.amazonaws.com/creativetim_bucket/products/689/original/react-material-dashboard-pro-nodejs.jpg?1664790326"
-          />
-          <meta property="fb:app_id" content="655968634437471" />
-          <meta
-            property="og:title"
-            content="Material Dashboard 2 React Node.js by Creative Tim & UPDIVISION"
-          />
-          <meta property="og:type" content="article" />
-          <meta
-            property="og:url"
-            content="https://www.creative-tim.com/live/react-material-dashboard-node.js-pro/"
-          />
-          <meta
-            property="og:image"
-            content="https://s3.amazonaws.com/creativetim_bucket/products/689/original/react-material-dashboard-pro-nodejs.jpg?1664790326"
-          />
-          <meta
-            property="og:description"
-            content="Full stack app with hundreds of reusable UI components powered by MUI component library, React and Node.js API"
-          />
-          <meta property="og:site_name" content="Creative Tim" />
-        </Helmet>
-      )}
-      {direction === "rtl" ? (
-        <CacheProvider value={rtlCache}>
-          <ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>
+      <>
+        {isDemo && (
+          <Helmet>
+            <meta
+              name="keywords"
+              content="creative tim, updivision, material, node.js json:api, html dashboard, node.js, react, api admin, pro react node.js, html css dashboard node.js, material dashboard node.js, node.js api, pro react material dashboard, material admin, pro react dashboard, pro react admin, web dashboard, bootstrap 5 dashboard node.js, bootstrap 5, css3 dashboard, bootstrap 5 admin node.js, material dashboard bootstrap 5 node.js, frontend, api dashboard, responsive bootstrap 5 dashboard, api, material dashboard, material node.js bootstrap 5 dashboard, json:api"
+            />
+            <meta
+              name="description"
+              content="Full stack app with hundreds of reusable UI components powered by MUI component library, React and Node.js API"
+            />
+            <meta
+              itemProp="name"
+              content="Material Dashboard 2 React Node.js by Creative Tim & UPDIVISION"
+            />
+            <meta
+              itemProp="description"
+              content="Full stack app with hundreds of reusable UI components powered by MUI component library, React and Node.js API"
+            />
+            <meta
+              itemProp="image"
+              content="https://s3.amazonaws.com/creativetim_bucket/products/689/original/react-material-dashboard-pro-nodejs.jpg?1664790326"
+            />
+            <meta name="twitter:card" content="product" />
+            <meta name="twitter:site" content="@creativetim" />
+            <meta
+              name="twitter:title"
+              content="Material Dashboard 2 React Node.js by Creative Tim & UPDIVISION"
+            />
+            <meta
+              name="twitter:description"
+              content="Full stack app with hundreds of reusable UI components powered by MUI component library, React and Node.js API"
+            />
+            <meta name="twitter:creator" content="@creativetim" />
+            <meta
+              name="twitter:image"
+              content="https://s3.amazonaws.com/creativetim_bucket/products/689/original/react-material-dashboard-pro-nodejs.jpg?1664790326"
+            />
+            <meta property="fb:app_id" content="655968634437471" />
+            <meta
+              property="og:title"
+              content="Material Dashboard 2 React Node.js by Creative Tim & UPDIVISION"
+            />
+            <meta property="og:type" content="article" />
+            <meta
+              property="og:url"
+              content="https://www.creative-tim.com/live/react-material-dashboard-node.js-pro/"
+            />
+            <meta
+              property="og:image"
+              content="https://s3.amazonaws.com/creativetim_bucket/products/689/original/react-material-dashboard-pro-nodejs.jpg?1664790326"
+            />
+            <meta
+              property="og:description"
+              content="Full stack app with hundreds of reusable UI components powered by MUI component library, React and Node.js API"
+            />
+            <meta property="og:site_name" content="Creative Tim" />
+          </Helmet>
+        )}
+        {direction === "rtl" ? (
+          <CacheProvider value={rtlCache}>
+            <ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>
+              <CssBaseline />
+              {layout === "dashboard" && (
+                <>
+                  <Sidenav
+                    color={sidenavColor}
+                    brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
+                    brandName="RIVIO"
+                    routes={routes}
+                    onMouseEnter={handleOnMouseEnter}
+                    onMouseLeave={handleOnMouseLeave}
+                  />
+                  <Configurator />
+                  {configsButton}
+                </>
+              )}
+              {layout === "vr" && <Configurator />}
+              <Routes>
+                <Route path="/auth/login" element={<Login />} />
+                {getRoutes(routes)}
+                <Route path="*" element={<Navigate to={userDetails.role === 1 ? "/internal-device-management" : "/rivio"} />} />
+              </Routes>
+            </ThemeProvider>
+          </CacheProvider>
+        ) : (
+          <ThemeProvider theme={darkMode ? themeDark : theme}>
             <CssBaseline />
             {layout === "dashboard" && (
               <>
@@ -310,42 +342,19 @@ export default function App({ ability }) {
             {layout === "vr" && <Configurator />}
             <Routes>
               <Route path="/auth/login" element={<Login />} />
+              <Route path="/auth/register" element={<Register />} />
+              <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+              <Route path="/auth/reset-password" element={<ResetPassword />} />
+              <Route path="/auth/verifyemail" element={<EmailVerification />} />
+              <Route path="/auth/verifyemail/:token" element={<VerifyEmailPage />} />
+              <Route path="/rivio" element={<Summary />} />
               {getRoutes(routes)}
-              <Route path="*" element={<Navigate to="/dashboards/analytics" />} />
+              {getCrudRoutes(crudRoutes)}
+              <Route path="*" element={<Navigate to={userDetails.role === 1 ? "/internal-device-management" : "/rivio"} />} />
             </Routes>
           </ThemeProvider>
-        </CacheProvider>
-      ) : (
-        <ThemeProvider theme={darkMode ? themeDark : theme}>
-          <CssBaseline />
-          {layout === "dashboard" && (
-            <>
-              <Sidenav
-                color={sidenavColor}
-                brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-                brandName="RIVIO"
-                routes={routes}
-                onMouseEnter={handleOnMouseEnter}
-                onMouseLeave={handleOnMouseLeave}
-              />
-              <Configurator />
-              {configsButton}
-            </>
-          )}
-          {layout === "vr" && <Configurator />}
-          <Routes>
-            <Route path="/auth/login" element={<Login />} />
-            <Route path="/auth/register" element={<Register />} />
-            <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-            <Route path="/auth/reset-password" element={<ResetPassword />} />
-            <Route path="/auth/verifyemail" element={<EmailVerification />} />
-            <Route path="/auth/verifyemail/:token" element={<VerifyEmailPage />} />
-            {getRoutes(routes)}
-            {getCrudRoutes(crudRoutes)}
-            <Route path="*" element={<Navigate to="/dashboards/analytics" />} />
-          </Routes>
-        </ThemeProvider>
-      )}
+        )}
+      </>
     </>
   );
 }

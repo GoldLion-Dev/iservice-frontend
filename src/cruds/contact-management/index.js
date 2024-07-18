@@ -13,7 +13,7 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 // @mui material components
@@ -35,11 +35,14 @@ import { Tooltip, IconButton } from "@mui/material";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
 
 import CrudService from "services/cruds-service";
 import HTMLReactParser from "html-react-parser";
 import { AbilityContext } from "Can";
 import { useAbility } from "@casl/react";
+import NewUserModal from "cruds/modals/new-user";
+import AuthService from "services/auth-service";
 
 function ContactManagement() {
   let { state } = useLocation();
@@ -50,6 +53,20 @@ function ContactManagement() {
     value: false,
     text: "",
   });
+  const [openUserModal, setOpenUserModal] = useState(false);
+  const [selectedContact, setSelectedContact] = useState({id: '', email: '', phone: ''});
+  const [role, setRole] = useState("");
+  const [user, setUser] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    organization: "",
+    role: "",
+  });
+
+  const setUserCallback = useCallback((newUser) => {
+    setUser(newUser);
+  }, [setUser]);
 
   const navigate = useNavigate();
 
@@ -83,6 +100,11 @@ function ContactManagement() {
       }, 5000);
     }
   }, [notification]);
+
+  const handleUserModalClose = () => {
+    setOpenUserModal(false);
+  };
+
 
   const clickAddHandler = () => {
     navigate("/contact-management/new-contact");
@@ -118,6 +140,23 @@ function ContactManagement() {
       }
       return null;
     }
+  };
+
+  const clickCreateUserHandler = async (id, email, phone) => {
+    (async () => {
+      const response = await AuthService.getProfile();
+      setRole("");
+      setUser({
+        name: "",
+        email: "",
+        phone: "",
+        organization: response.data.attributes.Organization?.name,
+        role: "",
+      });
+    })();
+  
+    setOpenUserModal(true);
+    setSelectedContact({id: id, email: email, phone: phone});
   };
 
   const getRows = (info) => {
@@ -180,6 +219,13 @@ function ContactManagement() {
                   </IconButton>
                 </Tooltip>
               )}
+              {ability.can("create", "users") && (
+                <Tooltip title="Create User">
+                  <IconButton onClick={() => clickCreateUserHandler(info.cell.row.original.id, info.cell.row.original.email, info.cell.row.original.phone)}>
+                    <MDTypography><AddIcon /></MDTypography>
+                  </IconButton>
+                </Tooltip>
+              )}              
             </MDBox>
           );
         },
@@ -206,7 +252,7 @@ function ContactManagement() {
               <MDTypography variant="h5" fontWeight="medium">
                 Contact Management
               </MDTypography>
-
+              <NewUserModal role={role} setRole={setRole} user={user} setUser={setUserCallback} contact={selectedContact} open={openUserModal} handleClose={handleUserModalClose} />
               {ability.can("create", "contacts") && (
                 <MDButton
                   variant="gradient"
@@ -219,7 +265,7 @@ function ContactManagement() {
                 </MDButton>
               )}
             </MDBox>
-            <DataTable table={dataTableData} />
+            <DataTable table={dataTableData} canSearch={true} />
           </Card>
         </MDBox>
       </MDBox>

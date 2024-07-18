@@ -43,10 +43,12 @@ const ModalItem = ({moduleData, module, setModule, attributeValue, setAttributeV
   const [open, setOpen] = useState(false);
   const [openAttribute, setOpenAttribute] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [providers, setProviders] = useState([]);
   const [statusItem, setStatusItem] = useState([]);
   const [itemIndex, setItemIndex] = useState([]);
   const [selectedItemAttributes, setSelectedItemAttributes] = useState([]);
 
+  console.log(module, 'module')
   useEffect(() => {
     (async () => {
         try {
@@ -58,6 +60,16 @@ const ModalItem = ({moduleData, module, setModule, attributeValue, setAttributeV
           console.error(err);
           return null;
         }
+    })();
+    (async () => {
+      try {
+        const response = await CrudService.getProviders();
+        console.log(response,' providers')
+        setProviders(response);
+      } catch (err) {
+        console.error(err);
+        return null;
+      }
     })();
   }, [])
 
@@ -91,8 +103,9 @@ const ModalItem = ({moduleData, module, setModule, attributeValue, setAttributeV
   const addItem = () => {
     // setModule([...items, newitem]);
     const filteredItems = moduleData.filter(item => selectedRows.includes(item.id));
-    const updatedFilteredItems = filteredItems.map(item => ({ ...item, itemName: '', ItemStatusOption: [] }));
+    const updatedFilteredItems = filteredItems.map(item => ({ ...item, itemName: '', ItemStatusOption: [], provider: [] }));
     setModule([...module, ...updatedFilteredItems]);
+    console.log(module, updatedFilteredItems, '=========')
     setOpen(false);
   };
 
@@ -112,6 +125,20 @@ const ModalItem = ({moduleData, module, setModule, attributeValue, setAttributeV
     const updatedItems = module.map((item, index) => {
       if (index === rowIndex) {
         return { ...item, ItemStatusOption: value };
+      }
+      return item;
+    });
+  
+    setModule(updatedItems);
+  };
+
+  const handleProviderChange = (e, value, rowIndex) => {
+    // Update the item name in the corresponding row of your data (items array)
+    
+    // Update state or perform any other action with updatedItems
+    const updatedItems = module.map((item, index) => {
+      if (index === rowIndex) {
+        return { ...item, provider: value };
       }
       return item;
     });
@@ -187,6 +214,9 @@ const ModalItem = ({moduleData, module, setModule, attributeValue, setAttributeV
     return option?.StatusType?.status_name === value?.StatusType?.status_name;
   };
 
+  const isOptionEqualToValueProvider = (option, value) => {
+    return option?.provider_name === value?.provider_name;
+  };
 
   const getRows = (info) => {
     let updatedInfo = info.map((row) => {
@@ -232,6 +262,31 @@ const ModalItem = ({moduleData, module, setModule, attributeValue, setAttributeV
               <FormField
                 {...params}
                 label="Status"
+                InputLabelProps={{ shrink: true }}
+                required
+              />
+            )}
+          />
+        ),
+      },
+      {
+        Header: "Providers",
+        accessor: "provider",
+        Cell: ({ row, value }) => (
+          <Autocomplete
+            defaultValue=""
+            options={providers}
+            value={providers.find(option => isOptionEqualToValueProvider(option, module[row.index]?.provider)) ?? null}
+            getOptionLabel={(option) => (option ? option?.provider_name : "")}
+            onChange={(e, newStatus) => {
+              handleProviderChange(e, newStatus, row.index);
+            }}
+            style={{ width: "250px" }}
+            isOptionEqualToValue={isOptionEqualToValueProvider}
+            renderInput={(params) => (
+              <FormField
+                {...params}
+                label="Provider"
                 InputLabelProps={{ shrink: true }}
                 required
               />
@@ -324,17 +379,17 @@ const ModalItem = ({moduleData, module, setModule, attributeValue, setAttributeV
                     aria-describedby="modal-description"
                 >
                     <Card
-                    sx={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: '80%', // Set the desired width here
-                        backgroundColor: 'white',
-                        border: '2px solid #000',
-                        boxShadow: 24,
-                        p: 4,
-                    }}
+                      sx={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          width: '80%', // Set the desired width here
+                          backgroundColor: 'white',
+                          border: '2px solid #000',
+                          boxShadow: 24,
+                          p: 4,
+                      }}
                     >
                     <CardContent>
                         <Typography>Select item</Typography>

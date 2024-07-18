@@ -48,11 +48,10 @@ const NewUser = () => {
     email: "",
     phone: "",
     organization: "",
-    // password: "",
-    // confirm: "",
+    password: "",
+    confirm: "",
     role: "",
   });
-
   const [value, setValue] = useState("");
 
   const [error, setError] = useState({
