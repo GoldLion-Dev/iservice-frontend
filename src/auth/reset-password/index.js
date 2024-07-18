@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 // react-router-dom components
 import { Link } from "react-router-dom";
 
@@ -19,12 +19,14 @@ import CoverLayout from "layouts/authentication/components/CoverLayout";
 import bgImage from "assets/images/bg-sign-up-cover.jpeg";
 
 import AuthService from "services/auth-service";
+import { AuthContext } from "context";
 
 // for the reset I should take from the url the token sent and the email
 const PasswordReset = () => {
   const [token, setToken] = useState(null);
   const [email, setEmail] = useState(null);
   const [notification, setNotification] = useState(false);
+  const authContext = useContext(AuthContext);
 
   const [inputs, setInputs] = useState({
     password: "",
@@ -95,6 +97,7 @@ const PasswordReset = () => {
 
       if (errors.passwordError === false && errors.confirmationError === false) {
         setNotification(true);
+        authContext.login(res.access_token);
       }
     } catch (err) {
       console.error(err);
@@ -118,10 +121,10 @@ const PasswordReset = () => {
           textAlign="center"
         >
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
-            Join us today
+            Reset Password
           </MDTypography>
           <MDTypography display="block" variant="button" color="white" my={1}>
-            Enter your new password and its confimrmation for update
+            Enter your new password and it's confirmation to update
           </MDTypography>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>

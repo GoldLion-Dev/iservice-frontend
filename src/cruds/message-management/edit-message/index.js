@@ -152,100 +152,113 @@ const EditMessage = () => {
 
     return (
         <DashboardLayout>
-        <DashboardNavbar />
-        <MDBox mt={5} mb={9}>
-            <Grid container justifyContent="center">
-            <Grid item xs={12} lg={8}>
-                <MDBox mt={6} mb={8} textAlign="center">
-                <MDBox mb={1}>
-                    <MDTypography variant="h3" fontWeight="bold">
-                    Edit Message {id}
-                    </MDTypography>
-                </MDBox>
-                <MDTypography variant="h5" fontWeight="regular" color="secondary">
-                    This information will describe more about the Message.
-                </MDTypography>
-                </MDBox>
-                <Card>
-                <MDBox component="form" method="POST" onSubmit={submitHandler}>
-                    <MDBox display="flex" flexDirection="column" px={3} my={2}>
-                        <FormField
-                            type="text"
-                            label=" Name"
-                            name="name"
-                            value={message.name}
-                            onChange={changeNameHandler}
-                            error={error.name}
-                        />                    
-
-                        <MDBox mt={2}>
-                            <MDBox mb={1} ml={0.5} lineHeight={0} display="inline-block">
-                                <MDTypography
-                                    component="label"
-                                    variant="button"
-                                    fontWeight="regular"
-                                    color="text"
-                                >
-                                    Message Content&nbsp;&nbsp;
+            <DashboardNavbar />
+            <MDBox mt={5} mb={9}>
+                <Grid container justifyContent="center">
+                    <Grid item xs={12} lg={8}>
+                        <MDBox mt={6} mb={8} textAlign="center">
+                            <MDBox mb={1}>
+                                <MDTypography variant="h3" fontWeight="bold">
+                                Edit Message {id}
                                 </MDTypography>
                             </MDBox>
-                            <MDEditor value={message.content} onChange={handleEditorChange} />  
-                            <Popover
-                                open={Boolean(anchorEl)}
-                                anchorEl={anchorEl}
-                                onClose={() => setAnchorEl(null)}
-                                    anchorOrigin={{
-                                    vertical: 'bottom',
-                                    horizontal: 'left',
-                                }}
-                                transformOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'left',
-                                }}
-                            >
-                                <Scrollbar style={{ maxHeight: '150px' }}>
-                                    <List>
-                                        <MDTypography>Message Template Variables</MDTypography>
-                                        {variables.map((variable, index) => (
-                                            <ListItem key={index} button onClick={() => handleVariableInsertion(variable)} >
-                                                <ListItemText>
-                                                    <MDTypography variant="body2">* {variable}</MDTypography>
-                                                </ListItemText>
-                                            </ListItem>
-                                        ))}
-                                    </List>
-                                </Scrollbar>
-                            </Popover>                       
+                            <MDTypography variant="h5" fontWeight="regular" color="secondary">
+                                This information will describe more about the Message.
+                            </MDTypography>
                         </MDBox>
-                        
-                        <MDBox ml="auto" mt={4} mb={2} display="flex" justifyContent="flex-end">
-                            <MDBox mx={2}>
-                                <MDButton
-                                    variant="gradient"
-                                    color="dark"
-                                    size="small"
-                                    px={2}
-                                    mx={2}
-                                    onClick={() =>
-                                    navigate("/message-management", {
-                                        state: { value: false, text: "" },
-                                    })
-                                    }
-                                >
-                                    Back
-                                </MDButton>
+                        <Card>
+                            <MDBox component="form" method="POST" onSubmit={submitHandler}>
+                                <MDBox display="flex" flexDirection="column" px={3} my={2}>
+                                    <FormField
+                                        type="text"
+                                        label=" Name"
+                                        name="name"
+                                        value={message.name}
+                                        onChange={changeNameHandler}
+                                        error={error.name}
+                                    />                    
+
+                                    <MDBox mt={2}>
+                                        <MDBox mb={1} ml={0.5} lineHeight={0} display="inline-block">
+                                            <MDTypography
+                                                component="label"
+                                                variant="button"
+                                                fontWeight="regular"
+                                                color="text"
+                                            >
+                                                Message Content&nbsp;&nbsp;
+                                            </MDTypography>
+                                        </MDBox>
+                                        <MDEditor value={message.content} onChange={handleEditorChange} />  
+                                        <Popover
+                                            open={Boolean(anchorEl)}
+                                            anchorEl={anchorEl}
+                                            onClose={() => setAnchorEl(null)}
+                                            anchorOrigin={{
+                                                vertical: 'bottom',
+                                                horizontal: 'left',
+                                            }}
+                                            transformOrigin={{
+                                                vertical: 'top',
+                                                horizontal: 'left',
+                                            }}
+                                        >
+                                            <Scrollbar >
+                                                <List style={{ backgroundColor: 'white', overflowY: 'scroll', maxHeight: '200px' }}>
+                                                    <MDTypography>Message Template Variables</MDTypography>
+                                                    {variables.map((variable, index) => (
+                                                        <ListItem key={index} button onClick={() => handleVariableInsertion(variable)} >
+                                                            <ListItemText>
+                                                                <MDTypography variant="body2">* {variable}</MDTypography>
+                                                            </ListItemText>
+                                                        </ListItem>
+                                                    ))}
+                                                </List>
+                                            </Scrollbar>
+                                            <style>
+                                            {`
+                                            /* CSS to hide the ps__rail-y div */
+                                            .ps__rail-y {
+                                                display: none !important;
+                                            }
+
+                                            /* CSS to set the height of ps__rail-y to 0 */
+                                            .ps__rail-y {
+                                                height: 0 !important;
+                                            }
+                                            `}
+                                            </style>
+                                        </Popover>                 
+                                    </MDBox>
+                                    
+                                    <MDBox ml="auto" mt={4} mb={2} display="flex" justifyContent="flex-end">
+                                        <MDBox mx={2}>
+                                            <MDButton
+                                                variant="gradient"
+                                                color="dark"
+                                                size="small"
+                                                px={2}
+                                                mx={2}
+                                                onClick={() =>
+                                                navigate("/message-management", {
+                                                    state: { value: false, text: "" },
+                                                })
+                                                }
+                                            >
+                                                Back
+                                            </MDButton>
+                                        </MDBox>
+                                        <MDButton variant="gradient" color="dark" size="small" type="submit">
+                                        Save
+                                        </MDButton>
+                                    </MDBox>
+                                </MDBox>
                             </MDBox>
-                            <MDButton variant="gradient" color="dark" size="small" type="submit">
-                            Save
-                            </MDButton>
-                        </MDBox>
-                    </MDBox>
-                </MDBox>
-                </Card>
-            </Grid>
-            </Grid>
-        </MDBox>
-        <Footer />
+                        </Card>
+                    </Grid>
+                </Grid>
+            </MDBox>
+            <Footer />
         </DashboardLayout>
     );
 };

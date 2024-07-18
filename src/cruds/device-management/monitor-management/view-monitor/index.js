@@ -352,14 +352,14 @@ const ViewMonitorDevice = () => {
         if (typeof data === 'object' && data !== null) {
             return (
                 <Table>
-                <TableBody>
-                    {Object.entries(data).map(([key, value]) => (
-                    <TableRow key={key}>
-                        <TableCell>{key}</TableCell>
-                        <TableCell>{renderTableCell(value)}</TableCell>
-                    </TableRow>
-                    ))}
-                </TableBody>
+                    <TableBody>
+                        {Object.entries(data).map(([key, value]) => (
+                        <TableRow key={key}>
+                            <TableCell>{key}</TableCell>
+                            <TableCell>{renderTableCell(value)}</TableCell>
+                        </TableRow>
+                        ))}
+                    </TableBody>
                 </Table>
             );
         }

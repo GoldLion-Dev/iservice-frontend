@@ -26,7 +26,7 @@ import { useMaterialUIController } from "context";
 
 const MDTypography = forwardRef(
   (
-    { color, fontWeight, textTransform, verticalAlign, textGradient, opacity, children, ...rest },
+    { color, fontWeight, textTransform, verticalAlign, textGradient, opacity, fontSize, children, ...rest },
     ref
   ) => {
     const [controller] = useMaterialUIController();
@@ -44,6 +44,7 @@ const MDTypography = forwardRef(
           opacity,
           textGradient,
           darkMode,
+          fontSize: fontSize ? `${fontSize}rem` : "1rem",
         }}
       >
         {children}
@@ -60,6 +61,7 @@ MDTypography.defaultProps = {
   verticalAlign: "unset",
   textGradient: false,
   opacity: 1,
+  fontSize: "1rem",
 };
 
 // Typechecking props for the MDTypography
@@ -91,6 +93,7 @@ MDTypography.propTypes = {
     "bottom",
   ]),
   textGradient: PropTypes.bool,
+  fontSize: PropTypes.string,
   children: PropTypes.node.isRequired,
   opacity: PropTypes.number,
 };

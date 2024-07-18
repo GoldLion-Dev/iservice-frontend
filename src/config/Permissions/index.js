@@ -3,7 +3,7 @@ import CrudService from "services/cruds-service";
 export const getPermissions = async (id) => {
   try {
     const res = await CrudService.getUserWithPermissions(id);
-    const permissions = res.included;;
+    const permissions = res.included;
     let jsonPermissions = [];
     permissions.map((permission) => {
       if (permission.type == "permissions") {

@@ -39,6 +39,8 @@ import NewParameter from "cruds/api/mapping/internal-parameter/new-parameter";
 import EditParameter from "cruds/api/mapping/internal-parameter/edit-parameter";
 import NewMessage from "cruds/message-management/new-message";
 import EditMessage from "cruds/message-management/edit-message";
+import ViewDevice from "cruds/device-management/internal-device-management/view-device";
+import EditProvider from "cruds/provider-management/edit-provider";
 
 /** 
   All of the routes for the Material Dashboard 2 PRO React are added here,
@@ -144,6 +146,12 @@ const crudRoutes = [
     type: "items",
   },
   {
+    key: "view-device",
+    route: "/internal-device-management/view-device/:id",
+    component: <ViewDevice />,
+    type: "devices",
+  },
+  {
     key: "new-device",
     route: "/internal-device-management/new-device",
     component: <NewDevice />,
@@ -220,6 +228,12 @@ const crudRoutes = [
     route: "/message-management/edit-message/:id",
     component: <EditMessage />,
     type: "messages",
+  },
+  {
+    key: "edit-provider",
+    route: "/provider-management/edit-provider/:id",
+    component: <EditProvider />,
+    type: "providers",
   },
 
 ];

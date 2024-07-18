@@ -19,12 +19,14 @@ import { styled } from "@mui/material/styles";
 
 export default styled(Typography)(({ theme, ownerState }) => {
   const { palette, typography, functions } = theme;
-  const { color, textTransform, verticalAlign, fontWeight, opacity, textGradient, darkMode } =
+  const { color, textTransform, verticalAlign, fontWeight, opacity, textGradient, darkMode, fontSize  } =
     ownerState;
 
   const { gradients, transparent, white } = palette;
   const { fontWeightLight, fontWeightRegular, fontWeightMedium, fontWeightBold } = typography;
   const { linearGradient } = functions;
+
+  const defaultFontSize = fontSize || "1rem";
 
   // fontWeight styles
   const fontWeights = {
@@ -61,6 +63,7 @@ export default styled(Typography)(({ theme, ownerState }) => {
     textDecoration: "none",
     color: colorValue,
     fontWeight: fontWeights[fontWeight] && fontWeights[fontWeight],
+    fontSize: defaultFontSize,
     ...(textGradient && gradientStyles()),
   };
 });

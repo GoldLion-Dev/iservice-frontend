@@ -371,11 +371,11 @@ const NewMonitorDevice = () => {
                                                 overflowX: 'hidden'                                                                    
                                             }}/>
 
-                                            <Popover
+<Popover
                                                 open={Boolean(anchorEl)}
                                                 anchorEl={anchorEl}
                                                 onClose={() => setAnchorEl(null)}
-                                                    anchorOrigin={{
+                                                anchorOrigin={{
                                                     vertical: 'bottom',
                                                     horizontal: 'left',
                                                 }}
@@ -384,8 +384,8 @@ const NewMonitorDevice = () => {
                                                     horizontal: 'left',
                                                 }}
                                             >
-                                                <Scrollbar style={{ maxHeight: '150px' }}>
-                                                    <List>
+                                                <Scrollbar >
+                                                    <List style={{ backgroundColor: 'white', overflowY: 'scroll', maxHeight: '200px' }}>
                                                         <MDTypography>Message Template Variables</MDTypography>
                                                         {variables.map((variable, index) => (
                                                             <ListItem key={index} button onClick={() => handleVariableInsertion(variable)} >
@@ -396,7 +396,20 @@ const NewMonitorDevice = () => {
                                                         ))}
                                                     </List>
                                                 </Scrollbar>
-                                            </Popover>   
+                                                <style>
+                                                {`
+                                                /* CSS to hide the ps__rail-y div */
+                                                .ps__rail-y {
+                                                    display: none !important;
+                                                }
+
+                                                /* CSS to set the height of ps__rail-y to 0 */
+                                                .ps__rail-y {
+                                                    height: 0 !important;
+                                                }
+                                                `}
+                                                </style>
+                                            </Popover>
                                             <MDBox ml="auto" mt={3} display="flex" justifyContent="flex-end">
                                                 <MDButton variant="contained" color="secondary" onClick={() => handleMsgModalClose(index)}>
                                                     Cancel

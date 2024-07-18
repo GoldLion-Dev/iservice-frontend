@@ -134,6 +134,31 @@ class CrudService {
     const fieldTypesEndpoint = "modules/fieldTypes";
     return await HttpService.get(fieldTypesEndpoint);
   }
+
+  getEventTypes = async () => {
+    const endpoint = "modules/eventTypes";
+    return await HttpService.get(endpoint);
+  }
+  
+  getAlertSubTypes = async () => {
+    const endpoint = "modules/alert_sub_types";
+    return await HttpService.get(endpoint);
+  }
+  
+  getSendToTypes = async () => {
+    const endpoint = "modules/sendToTypes";
+    return await HttpService.get(endpoint);
+  }
+
+  getEntityContacts = async (payload) => {
+    const endpoint = "modules/entityContacts";
+    return await HttpService.post(endpoint, payload);
+  }
+
+  getProviderContacts = async (payload) => {
+    const endpoint = "modules/providerContacts";
+    return await HttpService.post(endpoint, payload);
+  }
   
   getDeviceParameterTypes = async () => {
     const deviceParameterTypesEndpoint = "modules/device-parameter-types";
@@ -266,7 +291,85 @@ class CrudService {
   };
 
 
+  // alert
+  getAlerts = async () => {
+    const alertsEndpoint = "alerts";
+    return await HttpService.get(alertsEndpoint);
+  };
 
+  getDeviceAlerts = async (payload) => {
+    const alertsEndpoint = "alerts/device";
+    return await HttpService.post(alertsEndpoint, payload);
+  };
+
+  getAlertRules = async (payload) => {
+    console.log(payload, 'rules')
+    const endpoint = "alertrules/list";
+    return await HttpService.post(endpoint, payload);
+  };
+
+  getAlertRule = async (id) => {
+    console.log(id, 'id')
+    const endpoint = `alertrules/${id}`;
+    return await HttpService.get(endpoint);
+  };
+
+  createAlertRule = async (payload) => {
+    const endpoint = `alertrules`;
+    return await HttpService.post(endpoint, payload);
+  };
+
+  editAlertRule = async (payload, id) => {
+    console.log(id, 'id')
+    const endpoint = `alertrules/${id}`;
+    return await HttpService.patch(endpoint, payload);
+  };
+
+  deleteAlertRule = async (id) => {
+    const endpoint = `alertrules/${id}`;
+    return await HttpService.delete(endpoint);
+  };
+
+  deleteAlert = async (id) => {
+    const endpoint = `alertrules/${id}`;
+    return await HttpService.delete(endpoint);
+  };
+
+  getSendGrid = async () => {
+    const endpoint = "alerts/sendgrid";
+    return await HttpService.get(endpoint);
+  };
+
+  getAlert = async (id) => {
+    const endpoint = `alerts/${id}`;
+    return await HttpService.get(endpoint);
+  };
+
+  deleteAlert = async (id) => {
+    const endpoint = `alerts/${id}`;
+    return await HttpService.delete(endpoint);
+  };
+
+  // provider
+  getProviders = async () => {
+    const providersEndpoint = "providers";
+    return await HttpService.get(providersEndpoint);
+  };
+
+  getProvider = async (id) => {
+    const endpoint = `providers/${id}`;
+    return await HttpService.get(endpoint);
+  };
+
+  getProviderServices = async () => {
+    const providersEndpoint = "providers/services";
+    return await HttpService.get(providersEndpoint);
+  };
+
+  updateProvider = async (payload, id) => {
+    const endpoint = `providers/${id}`;
+    return await HttpService.patch(endpoint, payload);
+  };
 
   // tag requests
   getTags = async () => {
@@ -361,6 +464,16 @@ class CrudService {
     const endpoint = `devices/${id}`
     return await HttpService.get(endpoint);
   }
+
+  getDeviceView = async (id) => {
+    const endpoint = `devices/view/${id}`
+    return await HttpService.get(endpoint);
+  }
+
+  setDeviceAlertEnable = async (payload) => {
+    const endpoint = `devices/set_alert_enable`;
+    return await HttpService.post(endpoint, payload);
+  };
 
   updateDevice = async (payload, id) => {
     const endpoint = `devices/${id}`;

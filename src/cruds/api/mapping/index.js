@@ -92,11 +92,11 @@ function ExternalParameterManagement() {
     };
 
     const clickEditHandler = async (id) => {
-        // navigate(`/external-parameter-management/edit-parameter/${id}`);
-        const parameterData = data.find((item) => item.id === id);
-        const response = await CrudService.getInternalFromExternalParameter(id);
-        setMapData(response.data.attributes);
-        setOpenModal(true);
+      // navigate(`/external-parameter-management/edit-parameter/${id}`);
+      const parameterData = data.find((item) => item.id === id);
+      const response = await CrudService.getInternalFromExternalParameter(id);
+      setMapData(response.data.attributes);
+      setOpenModal(true);
     };
 
     const handleClose = () => {
@@ -141,23 +141,23 @@ function ExternalParameterManagement() {
         accessor: "",
         Cell: (info) => {
             return (
-                <MDBox display="flex" alignItems="center">
-                {ability.can("edit", "devices") && (info.cell.row.original.status_type_id === 19) && (
-                    <Tooltip title="Map Parameter">
-                        <IconButton onClick={() => clickEditHandler(info.cell.row.original.id)}>
-                            <MDTypography><EditIcon /></MDTypography>
-                        </IconButton>
-                    </Tooltip>
-                )}
-                    
-                {ability.can("edit", "devices") && (info.cell.row.original.status_type_id === 20) && (
-                    <Tooltip title="Map Parameter">
-                        <IconButton onClick={() => clickSyncHandler(info.cell.row.original.id)}>
-                            <SyncIcon />
-                        </IconButton>
-                    </Tooltip>
-                )}
-                </MDBox>
+              <MDBox display="flex" alignItems="center">
+              {ability.can("edit", "devices") && (info.cell.row.original.status_type_id === 19) && (
+                  <Tooltip title="Map Parameter">
+                      <IconButton onClick={() => clickEditHandler(info.cell.row.original.id)}>
+                          <MDTypography><EditIcon /></MDTypography>
+                      </IconButton>
+                  </Tooltip>
+              )}
+                  
+              {ability.can("edit", "devices") && (info.cell.row.original.status_type_id === 20) && (
+                  <Tooltip title="Map Parameter">
+                      <IconButton onClick={() => clickSyncHandler(info.cell.row.original.id)}>
+                          <SyncIcon />
+                      </IconButton>
+                  </Tooltip>
+              )}
+              </MDBox>
             );
         },
       },
@@ -193,14 +193,14 @@ function ExternalParameterManagement() {
             >
               <Card
                 sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: '80%', // Set the desired width here
-                    backgroundColor: 'white',
-                    boxShadow: 24,
-                    p: 4,
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '80%', // Set the desired width here
+                  backgroundColor: 'white',
+                  boxShadow: 24,
+                  p: 4,
                 }}
               >
                 <CardContent>                 
