@@ -2,11 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Container,
     Typography,
-    Button,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
+    CardContent,
     TextField
 } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -98,9 +94,8 @@ const AlertRulesForm = React.memo(( {alertRule, setAlertRules, deviceId, setOpen
                 setSendToTypes(resSendToTypes.data);
 
                 const resAlertSubTypes = await CrudService.getAlertSubTypes();
-                setAlertSubTypes(resAlertSubTypes.data);
                 setOriginalAlertSubTypes(resAlertSubTypes.data);
-    
+
                 const resEntityContacts = await CrudService.getEntityContacts(deviceId);
                 setEntityContacts(resEntityContacts.data);
                 setOriginalEntityContacts(resEntityContacts.data);
@@ -111,6 +106,21 @@ const AlertRulesForm = React.memo(( {alertRule, setAlertRules, deviceId, setOpen
 
                 const resStatus = await CrudService.getStatusTypes(MODULE_MASTER.ALERTRULE);
                 setStatusOptions(resStatus.data.map(item => item.attributes));
+
+                if(alertRule) {
+                    console.log(alertRule, '-------alertRule-------')
+                    let sortedSubTypes = resAlertSubTypes.data.filter((item) => item.alert_type_id === alertRule.alert_type_id);
+                    setAlertSubTypes(sortedSubTypes);    
+                    if (alertRule.send_to_type_id === 3) {
+                        if (alertRule.event_type_id === 15) setContacts(resEntityContacts.data.filter(item => item.ContactAddress?.address_type_id === 1))
+                        else if (alertRule.event_type_id === 14) setContacts(resEntityContacts.data.filter(item => item.ContactAddress?.address_type_id === 2))
+                    } else if (alertRule.send_to_type_id === 2) {
+                        if (alertRule.event_type_id === 15) setContacts(resProviderContacts.data.filter(item => item.ContactAddress?.address_type_id === 1))
+                        else if (alertRule.event_type_id === 14) setContacts(resProviderContacts.data.filter(item => item.ContactAddress?.address_type_id === 2))
+                    }
+                } else {
+                    setAlertSubTypes(resAlertSubTypes.data);
+                }
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -128,8 +138,6 @@ const AlertRulesForm = React.memo(( {alertRule, setAlertRules, deviceId, setOpen
             if (formData.event_type_id === 15) setContacts(originalProviderContacts.filter(item => item.ContactAddress?.address_type_id === 1))
             else if (formData.event_type_id === 14) setContacts(originalProviderContacts.filter(item => item.ContactAddress?.address_type_id === 2))
         }
-        console.log(formData, '--------form data------------')
-
     }, [formData.send_to_type_id, formData.event_type_id]);
 
     const handleSubmit = async (e) => {
@@ -161,91 +169,100 @@ const AlertRulesForm = React.memo(( {alertRule, setAlertRules, deviceId, setOpen
                 {alertRule ? "Edit Alert Rule" : "Create Alert Rule"}
             </Typography>
             <MDBox component="form" method="POST" onSubmit={handleSubmit}>
-                <FormField
-                    type="text"
-                    label="Frequency"
-                    name="frequency"
-                    defaultValue={alertRule ? alertRule.frequency : ""}
-                    onChange={(e) => {
-                        setFormData({ ...formData, frequency: e.target.value ? e.target.value : '' });
+                <CardContent
+                    sx={{
+                        maxHeight: '70vh', // Set max height to enable scrolling
+                        overflowY: 'auto',    
+                        overflowX: 'hidden'                                          
                     }}
-                />
-                
-                <Autocomplete
-                    options={alertTypes}
-                    defaultValue={alertRule ? alertRule.AlertType : null}
-                    getOptionLabel={(option) => option.type_name}
-                    onChange={(event, newValue) => {
-                        setFormData({ ...formData, alert_type_id: newValue ? newValue.alert_type_id : '' });
-                        // let sortedSubTypes = originalAlertSubTypes.filter(item => item.alerty_type_id === newValue.alerty_type_id);
-                        let sortedSubTypes = originalAlertSubTypes.filter((item) => item.alert_type_id === newValue.alert_type_id);
-                        console.log(sortedSubTypes, newValue, 'sortedSubTypes')
-                        setAlertSubTypes(sortedSubTypes);
-                    }}
-                    renderInput={(params) => (
-                        <FormField {...params} label="Alert Type" InputLabelProps={{ shrink: true }} />
-                    )}
-                />
-                <Autocomplete
-                    options={statusOptions}
-                    defaultValue={alertRule ? alertRule?.StatusOption : null}
-                    getOptionLabel={(option) => option?.StatusType?.status_name}
-                    onChange={(event, newValue) => {
-                        console.log(newValue, 'status')
-                        setFormData({ ...formData, status_type_id: newValue ? newValue?.StatusType?.status_type_id : '' });
-                    }}
-                    renderInput={(params) => (
-                        <FormField {...params} label="Status Type" InputLabelProps={{ shrink: true }} />
-                    )}
-                />  
+                >   
+                    <Autocomplete
+                        options={alertTypes}
+                        defaultValue={alertRule ? alertRule.AlertType : null}
+                        getOptionLabel={(option) => option.type_name}
+                        onChange={(event, newValue) => {
+                            setFormData({ ...formData, alert_type_id: newValue ? newValue.alert_type_id : '' });
+                            // let sortedSubTypes = originalAlertSubTypes.filter(item => item.alerty_type_id === newValue.alerty_type_id);
+                            let sortedSubTypes = originalAlertSubTypes.filter((item) => item.alert_type_id === newValue.alert_type_id);
+                            setAlertSubTypes(sortedSubTypes);
+                        }}
+                        renderInput={(params) => (
+                            <FormField {...params} label="Alert Type" InputLabelProps={{ shrink: true }} required />
+                        )}
+                    />
+                    <Autocomplete
+                        options={alertSubTypes}
+                        defaultValue={alertRule ? alertRule.AlertSubType : null}
+                        getOptionLabel={(option) => option?.sub_type_name}
+                        onChange={(event, newValue) => {
+                            setFormData({ ...formData, alert_sub_type_id: newValue ? newValue?.alert_sub_type_id : '' });
+                        }}
+                        renderInput={(params) => (
+                            <FormField {...params} label="Alert Sub Type" InputLabelProps={{ shrink: true }} required />
+                        )}
+                    />  
 
-                <Autocomplete
-                    options={alertSubTypes}
-                    defaultValue={alertRule ? alertRule.AlertSubType : null}
-                    getOptionLabel={(option) => option?.sub_type_name}
-                    onChange={(event, newValue) => {
-                        setFormData({ ...formData, alert_sub_type_id: newValue ? newValue?.alert_sub_type_id : '' });
-                    }}
-                    renderInput={(params) => (
-                        <FormField {...params} label="Alert Sub Type" InputLabelProps={{ shrink: true }} />
-                    )}
-                />  
+                    <Autocomplete
+                        options={sendToTypes}
+                        defaultValue={alertRule ? alertRule.SendToType : null}
+                        getOptionLabel={(option) => option.send_to_type_name}
+                        onChange={(event, newValue) => {
+                            setFormData({ ...formData, send_to_type_id: newValue ? newValue.send_to_type_id : '' });
+                        }}
+                        renderInput={(params) => (
+                            <FormField {...params} label="Send To Type" InputLabelProps={{ shrink: true }} required />
+                        )}
+                    />              
+                    <Autocomplete
+                        options={eventTypes}
+                        defaultValue={alertRule ? alertRule.EventType : null}
+                        getOptionLabel={(option) => option.description}
+                        onChange={(event, newValue) => {
+                            setFormData({ ...formData, event_type_id: newValue ? newValue.id : '' });
+                        }}
+                        renderInput={(params) => (
+                            <FormField {...params} label="Event Type" InputLabelProps={{ shrink: true }} required />
+                        )}
+                    />                
+                    <Autocomplete
+                        options={contacts}
+                        defaultValue={alertRule ? alertRule : null}
+                        // getOptionLabel={(option) => option.ContactAddress?.contact_address}
+                        getOptionLabel={(option) => `${option.Contact?.first_name} ${option.Contact?.last_name} - ${option.ContactAddress?.contact_address}`}
 
-                <Autocomplete
-                    options={sendToTypes}
-                    defaultValue={alertRule ? alertRule.SendToType : null}
-                    getOptionLabel={(option) => option.send_to_type_name}
-                    onChange={(event, newValue) => {
-                        setFormData({ ...formData, send_to_type_id: newValue ? newValue.send_to_type_id : '' });
-                    }}
-                    renderInput={(params) => (
-                        <FormField {...params} label="Send To Type" InputLabelProps={{ shrink: true }} />
-                    )}
-                />              
-                <Autocomplete
-                    options={eventTypes}
-                    defaultValue={alertRule ? alertRule.EventType : null}
-                    getOptionLabel={(option) => option.description}
-                    onChange={(event, newValue) => {
-                        setFormData({ ...formData, event_type_id: newValue ? newValue.id : '' });
-                    }}
-                    renderInput={(params) => (
-                        <FormField {...params} label="Event Type" InputLabelProps={{ shrink: true }} />
-                    )}
-                />                
-                <Autocomplete
-                    options={contacts}
-                    defaultValue={alertRule ? alertRule : null}
-                    // getOptionLabel={(option) => option.ContactAddress?.contact_address}
-                    getOptionLabel={(option) => `${option.Contact?.first_name} ${option.Contact?.last_name} - ${option.ContactAddress?.contact_address}`}
+                        onChange={(event, newValue) => {
+                            setFormData({ ...formData, address_id: newValue ? newValue.ContactAddress?.contact_address_id : '' });
+                        }}
+                        renderInput={(params) => (
+                            <FormField {...params} label="Contact" InputLabelProps={{ shrink: true }} required />
+                        )}
+                    />
+                    
+                    <FormField
+                        type="text"
+                        label="Frequency"
+                        name="frequency"
+                        defaultValue={alertRule ? alertRule.frequency : ""}
+                        onChange={(e) => {
+                            setFormData({ ...formData, frequency: e.target.value ? e.target.value : '' });
+                        }}
+                        required
+                    />
+                    <Autocomplete
+                        options={statusOptions}
+                        defaultValue={alertRule ? alertRule?.StatusOption : null}
+                        getOptionLabel={(option) => option?.StatusType?.status_name}
+                        onChange={(event, newValue) => {
+                            console.log(newValue, 'status')
+                            setFormData({ ...formData, status_type_id: newValue ? newValue?.StatusType?.status_type_id : '' });
+                        }}
+                        renderInput={(params) => (
+                            <FormField {...params} label="Status Type" InputLabelProps={{ shrink: true }} required />
+                        )}
+                    />  
+                    
+                </CardContent>
 
-                    onChange={(event, newValue) => {
-                        setFormData({ ...formData, address_id: newValue ? newValue.ContactAddress?.contact_address_id : '' });
-                    }}
-                    renderInput={(params) => (
-                        <FormField {...params} label="Contact" InputLabelProps={{ shrink: true }} />
-                    )}
-                />
                 <MDBox ml="auto" mt={3} display="flex" justifyContent="flex-end">
                     <MDButton onClick={() => setOpenViewModal(false)} color="secondary">
                         Close

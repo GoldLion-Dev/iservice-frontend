@@ -427,7 +427,7 @@ const ModalModuleAddress = ({addressTypes, statusOptions, addresses, setAddresse
                                 value={newAddress.street_address1}
                                 style={{ marginTop: "1rem" }}
                                 onChange={(e) =>
-                                    changeAddressHandler(indexAddr, "street_address1", e.target.value)
+                                  changeAddressHandler(indexAddr, "street_address1", e.target.value)
                                 }
                               />
                           </Grid>
@@ -438,7 +438,7 @@ const ModalModuleAddress = ({addressTypes, statusOptions, addresses, setAddresse
                                 value={newAddress.street_address2}
                                 style={{ marginTop: "1rem" }}
                                 onChange={(e) =>
-                                    changeAddressHandler(indexAddr, "street_address2", e.target.value)
+                                  changeAddressHandler(indexAddr, "street_address2", e.target.value)
                                 }
                               />
                           </Grid>
@@ -446,22 +446,22 @@ const ModalModuleAddress = ({addressTypes, statusOptions, addresses, setAddresse
                           <Grid container spacing={2}>
                             <Grid item xs={6}>
                                 <FormField
-                                required
-                                type="text"
-                                label="City"
-                                value={newAddress.city}
-                                style={{marginTop: "1rem"}}
-                                onChange={(e) => changeAddressHandler(indexAddr, "city", e.target.value)}
+                                  required
+                                  type="text"
+                                  label="City"
+                                  value={newAddress.city}
+                                  style={{marginTop: "1rem"}}
+                                  onChange={(e) => changeAddressHandler(indexAddr, "city", e.target.value)}
                                 />
                             </Grid>
                             <Grid item xs={6}>
                                 <FormField
-                                required
-                                type="text"
-                                label="State"
-                                value={newAddress.state}
-                                style={{marginTop: "1rem"}}
-                                onChange={(e) => changeAddressHandler(indexAddr, "state", e.target.value)}
+                                  required
+                                  type="text"
+                                  label="State"
+                                  value={newAddress.state}
+                                  style={{marginTop: "1rem"}}
+                                  onChange={(e) => changeAddressHandler(indexAddr, "state", e.target.value)}
                                 />
                             </Grid>
                           </Grid>

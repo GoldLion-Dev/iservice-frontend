@@ -166,9 +166,6 @@ const ViewMonitorDevice = () => {
                 field_type_id: threshold?.DeviceParameter?.field_type_id
             }));
             setSelectedThresholds(newDeviceThresholds)
-
-            console.log(newDeviceParameters, 'newDeviceParameters')
-            
           } catch (err) {
             console.error(err);
           }

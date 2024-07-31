@@ -21,6 +21,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import MDBox from 'components/MDBox';
 import { TableSortLabel, InputAdornment, MenuItem, Select, TextField } from '@mui/material';
 import { useState } from 'react';
+import TablePagination from '@mui/material/TablePagination';
 
 // Create a row function
 const Row = ({ group, columns, clickViewHandler, clickDeleteHandler }) => {
@@ -50,7 +51,6 @@ const Row = ({ group, columns, clickViewHandler, clickDeleteHandler }) => {
                       <DeleteIcon />
                     </IconButton>
                   </Tooltip>
-
                 }
               </Box>
             ) : (
@@ -60,23 +60,25 @@ const Row = ({ group, columns, clickViewHandler, clickDeleteHandler }) => {
         ))}
       </TableRow>
       <TableRow>
-        <TableCell colSpan={columns.length + 1} style={{ paddingBottom: 0, paddingTop: 0, paddingLeft: '100px', paddingRight: '50px' }} >
+        <TableCell colSpan={columns.length + 1} style={{ paddingLeft: '43px' }} >
           <Collapse in={open} timeout="auto" unmountOnExit>
             {group.children.map((child) => (
               <TableRow key={child.id}>
                 {columns.map((column) => (
                   <TableCell key={column.accessor} width={column.width}>
-                    {column.accessor === 'actions' ? (
-                      <Box display="flex" alignItems="center">
-                        <Tooltip title="View Info">
-                          <IconButton onClick={() => clickViewHandler(group.header.id)}>
-                            <Visibility />
-                          </IconButton>
-                        </Tooltip>
-                      </Box>
-                    ) : (
-                      <TableCell key={column.accessor}>{child[column.accessor]}</TableCell>
-                    )}
+                    {['id', 'status', 'sub_type', 'created_at', 'updated_at', 'actions'].includes(column.accessor) ? (
+                      column.accessor === 'actions' ? (
+                        <Box display="flex" alignItems="center">
+                          <Tooltip title="View Info">
+                            <IconButton onClick={() => clickViewHandler(group.header.id)}>
+                              <Visibility />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
+                      ) : (
+                        <TableCell key={column.accessor}>{child[column.accessor]}</TableCell>
+                      )
+                    ) : null} 
                   </TableCell>
                 ))}
 
@@ -127,32 +129,49 @@ export default function CollapsibleTable({ data, columns, clickViewHandler, clic
     const [searchQuery, setSearchQuery] = React.useState('');
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('');
-    
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+
     const groupAlerts = (alerts) => {
-      const groupedAlerts = [];
-      let currentGroup = null;
-    
-      alerts.forEach((alert) => {
-        console.log(alert, '-------alert---------')
-        if (alert.is_parent) {
-          if (currentGroup) {
-            groupedAlerts.push(currentGroup);
-          }
-          currentGroup = {
-            alert_type_id: alert.alert_type_id,
-            header: alert,
-            children: [],
-          };
-        } else if (currentGroup && currentGroup.alert_type_id === alert.alert_type_id) {
-          currentGroup.children.push(alert);
+      const alertsByDevice = alerts.reduce((acc, alert) => {
+        if (!acc[alert.device_id]) {
+          acc[alert.device_id] = [];
         }
+        acc[alert.device_id].push(alert);
+        return acc;
+      }, {});
+    
+      const allGroupedAlerts = Object.values(alertsByDevice).flatMap(deviceAlerts => {
+        const groupedAlerts = [];
+        let currentGroup = null;
+    
+        deviceAlerts.forEach((alert) => {
+          if (alert.is_parent) {
+            if (currentGroup) {
+              groupedAlerts.push(currentGroup);
+            }
+            currentGroup = {
+              device_id: alert.device_id,
+              alert_type_id: alert.alert_type_id,
+              header: alert,
+              children: [],
+            };
+          } else if (currentGroup && currentGroup.alert_type_id === alert.alert_type_id) {
+            currentGroup.children.push(alert);
+          }
+        });
+    
+        if (currentGroup) {
+          groupedAlerts.push(currentGroup);
+        }
+    
+        return groupedAlerts;
       });
     
-      if (currentGroup) {
-        groupedAlerts.push(currentGroup);
-      }
+      // Sort groups by the created_at timestamp of the parent alert
+      allGroupedAlerts.sort((a, b) => new Date(a.header.created_at) - new Date(b.header.created_at));
     
-      return groupedAlerts;
+      return allGroupedAlerts;
     };
 
     const groupedData = groupAlerts(data);
@@ -167,7 +186,12 @@ export default function CollapsibleTable({ data, columns, clickViewHandler, clic
       setOrderBy(column);
     };
     
-
+    const VerticalSortIcon = () => (
+      <Box sx={{ display: 'flex', flexDirection:'column', flexDirection: 'column', alignItems: 'center' }}>
+        <KeyboardArrowUpIcon  />
+        <KeyboardArrowDownIcon/>
+      </Box>
+    );
     
     return (
       <TableContainer component={Paper}>
@@ -184,13 +208,7 @@ export default function CollapsibleTable({ data, columns, clickViewHandler, clic
           <TextField
             value={searchQuery}
             onChange={handleSearchChange}
-            placeholder="Search..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                </InputAdornment>
-              ),
-            }}
+            placeholder="Search"
           />
         </MDBox>
         <Table aria-label="collapsible table">
@@ -207,18 +225,22 @@ export default function CollapsibleTable({ data, columns, clickViewHandler, clic
                     color: '#7b809a',
                     fontSize: '0.65rem',
                     fontWeight: 700,
-                    justifyContent: 'left',
+                    justifyContent: 'space-between',
                     marginLeft: 0,
                   }}
                   sortDirection={orderBy === column.accessor ? order : false}
                 >
-                  <TableSortLabel
-                    active={orderBy === column.accessor}
-                    direction={orderBy === column.accessor ? order : 'asc'}
-                    onClick={() => handleSort(column.accessor)}
-                  >
-                    {column.Header}
-                  </TableSortLabel>
+                  {column.Header}
+                  {
+                    column.Header !== 'actions' && 
+                      <TableSortLabel
+                        IconComponent={VerticalSortIcon} 
+                        active={orderBy === column.accessor}
+                        direction={orderBy === column.accessor ? order : 'asc'}
+                        onClick={() => handleSort(column.accessor)}
+                      >
+                    </TableSortLabel>
+                  }
                 </TableCell>
               ))}
             </TableRow>

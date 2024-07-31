@@ -138,7 +138,6 @@ function EntityManagement() {
     // Check if latitude and longitude are valid numbers before constructing the URL
     if (latitude && longitude && !isNaN(latitude) && !isNaN(longitude)) {
       // Construct the map URL with the specific location details
-      // const mapUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBwzbz3UcUkp4l5qsD0clePzJZtyLIhf9U&q=${encodeURIComponent(street_address1 + ' ' + street_address2 + ', ' + city + ', ' + state + ', ' + country + ', ' + postal_code)}&center=${latitude},${longitude}&zoom=15`;
   
       // Set the map URL and open the modal
       setLatitude(latitude);

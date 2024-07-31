@@ -273,24 +273,25 @@ const ModalItem = ({moduleData, module, setModule, attributeValue, setAttributeV
         Header: "Providers",
         accessor: "provider",
         Cell: ({ row, value }) => (
-          <Autocomplete
-            defaultValue=""
-            options={providers}
-            value={providers.find(option => isOptionEqualToValueProvider(option, module[row.index]?.provider)) ?? null}
-            getOptionLabel={(option) => (option ? option?.provider_name : "")}
-            onChange={(e, newStatus) => {
-              handleProviderChange(e, newStatus, row.index);
-            }}
-            style={{ width: "250px" }}
-            isOptionEqualToValue={isOptionEqualToValueProvider}
-            renderInput={(params) => (
-              <FormField
-                {...params}
-                label="Provider"
-                InputLabelProps={{ shrink: true }}
-                required
-              />
-            )}
+          <Autocomplete  
+            multiple // Enable multiple selection  
+            defaultValue={[]} // Start with an empty array for multi-select  
+            options={providers}  
+            value={module[row.index]?.provider || []} // Ensure this is an array  
+            getOptionLabel={(option) => (option ? option.provider_name : "")}  
+            onChange={(e, newProviders) => {  
+              handleProviderChange(e, newProviders, row.index); // Adjust the handler to accept multiple providers  
+            }}  
+            style={{ width: "250px" }}  
+            isOptionEqualToValue={isOptionEqualToValueProvider}  
+            renderInput={(params) => (  
+              <FormField  
+                {...params}  
+                label="Providers" // Changed label to reflect multiple selection  
+                InputLabelProps={{ shrink: true }}  
+                required  
+              />  
+            )}  
           />
         ),
       },

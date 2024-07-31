@@ -87,7 +87,6 @@ function AlertManagement() {
     }
 
     const clickDeleteHandler = async (e, id) => {
-        console.log(id, '-d')
         try {
           if (!confirm("Are you sure you want to delete this company?")) {
             e.nativeEvent.stopImmediatePropagation();
@@ -119,7 +118,6 @@ function AlertManagement() {
 
     const getRows = (info) => {
         let updatedInfo = info.map((row) => {
-            console.log(row, 'row')
             const createdAt = row.attributes.created_at ? moment(row.attributes.created_at).format('MMMM DD, YYYY h:mm:ss A') : '';
             const updatedAt = row.attributes.updated_at ? moment(row.attributes.updated_at).format('MMMM DD, YYYY h:mm:ss A') : '';
             const subType = row.attributes.is_parent ? 'Alert Created' : ( row.attributes.is_healed ? 'Alert Healed' : 'Alert Resent');
@@ -149,12 +147,12 @@ function AlertManagement() {
 
     const columns = [
         { Header: "ID", accessor: "id", width: "5%" },
-        { Header: "Status", accessor: "status", width: "5%" },
+        { Header: "Status", accessor: "status", width: "10%" },
         { Header: "Alert Type", accessor: "alert_type", width: "15%" },
         { Header: "Sub Type", accessor: "sub_type", width: "15%" },
         { Header: "Device", accessor: "device", width: "15%" },
-        { Header: "Created At", accessor: "created_at" },
-        { Header: "Updated At", accessor: "updated_at" },
+        { Header: "Created At", accessor: "created_at", width: "20%" },
+        { Header: "Updated At", accessor: "updated_at", width: "20%" },
         {
             Header: "actions",
             disableSortBy: true,
@@ -239,7 +237,7 @@ function AlertManagement() {
                         backgroundColor: 'white',
                         boxShadow: 24,
                         p: 4,
-                        maxHeight: '70vh', // Set max height to enable scrolling
+                        maxHeight: '70vh', 
                         overflowY: 'auto',    
                         overflowX: 'hidden'                                          
                     }}

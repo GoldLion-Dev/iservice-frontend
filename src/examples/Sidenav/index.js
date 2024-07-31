@@ -124,13 +124,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const renderDeviceItems = devices.map((device, index) => {
     let deviceParamValue = device.paramValue ? device.paramValue?.value : undefined;
     let percent = deviceParamValue ? deviceParamValue.device_data?.percent_level : 0;
-    let alerts = device.alert;
-    let alertCnt = 0;
-    for (let i = 0; i < alerts.length; i++) {
-      if (alerts[i].status_type_id === 1) {
-          alertCnt++;
-      }
-    }
+    let alert = device.alert;
   
     return (
       <NavLink to={`/internal-device-management/view-device/${device.id}`} key={index}>
@@ -140,7 +134,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           route={`/internal-device-management/view-device/${device.id}`} 
           icon={<Icon>devices</Icon>} 
           active={pathname === `/internal-device-management/view-device/${device.id}`}
-          style={{ border: alertCnt > 0 ? '1px solid red' : 'none' }}
+          style={{ border: alert ? '1px solid red' : 'none' }}
 
         />
       </NavLink>
@@ -189,7 +183,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
       let returnValue;
       if (collapse) {
         returnValue = (
-          <Can I="view" this={type}>
+          <Can I="view" this={type}> 
             <SidenavItem
               key={key}
               color={color}
