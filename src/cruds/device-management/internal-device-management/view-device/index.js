@@ -21,7 +21,6 @@ import Card from "@mui/material/Card";
 import { Paper, Modal, CardContent, CardHeader, TableContainer, TableHead, Table, TableBody, TableCell, TableRow, Tab, Tabs, Tooltip, IconButton, Avatar } from "@mui/material";
 
 import Badge from "@mui/material/Badge";
-import Divider from '@mui/material/Divider';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -31,18 +30,14 @@ import EditIcon from "@mui/icons-material/Edit";
 import MDBox from "components/MDBox";
 import MDButton from "components/MDButton";
 import MDTypography from "components/MDTypography";
-import MDEditor from "components/MDEditor";
 
 // Material Dashboard 2 PRO React examples
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
-import FormField from "layouts/applications/wizard/components/FormField";
 import { useNavigate, useParams } from "react-router-dom";
 
 import CrudService from "services/cruds-service";
-import { MODULE_MASTER } from "utils/constant";
-import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import ParamValuesChart from "./ParamChart";
 import DataTable from "examples/Tables/DataTable";
@@ -50,6 +45,7 @@ import { withStyles } from "@material-ui/core";
 import moment from 'moment';
 import CollapsibleTable from "examples/Tables/ExpandTable";
 import AlertRulesForm from "./alertrule/new";
+import ServiceRequestsForm from "./service-request/new";
 import MDAlert from "components/MDAlert";
 
 const ViewDevice = () => {
@@ -79,71 +75,89 @@ const ViewDevice = () => {
 
   const [alertRule, setAlertRule] = useState([]);
   const [alertRules, setAlertRules] = useState([]);
+  const [serviceRequests, setServiceRequests] = useState([]);
   const [alertRuleTableData, setAlertRuleTableData] = useState([]);
+  const [serviceRequestTableData, setServiceRequestTableData] = useState([]);
+  
+  /////////// service request ////////////
+  const [openServiceModal, setServiceModal] = useState(false);
 
   const [notification, setNotification] = useState({
     value: false,
     text: "",
   });
-  useEffect(() => {
-    if (!id) return;
-    (async () => {
-      try {
-        console.log(id, 'id')
-        const res = await CrudService.getDeviceView(id);
-        console.log(res?.data, 'device data')
-        setDevice(res?.data);
-        let deviceThresholds = res?.data?.deviceThresholds;
-        for(let deviceThreshold of deviceThresholds) {
-            if(deviceThreshold.threshold_type_id === 1)
-                setPercentThreshold(deviceThreshold.threshold_value);
+
+    const [pillbarColor, setPillbarColor] = useState("");
+    const [providersState, setProvidersState] = useState([]);
+
+    useEffect(() => {
+        if (!id) return;
+        (async () => {
+        try {
+            console.log(id, 'id')
+            const res = await CrudService.getDeviceView(id);
+            console.log(res?.data, 'device data')
+            setDevice(res?.data);
+            setProvidersState(res?.data?.entityAddressItemProviders.map(provider => ({
+                association_id: provider?.association_id,
+                on_off: provider?.on_off || false
+            })))
+            setName({text: res.data.attributes?.name})
+            setNotified(res.data.attributes?.is_notified);
+            let lastRecord;
+            if (res?.data?.monitorParameterValues) {     
+                const extractedData = res.data.monitorParameterValues.map(item => ({
+                    value: item.value?.device_data,
+                    data: item.value,
+                    id: item.id,
+                    created_at: new Date(item.created_at).toISOString()  // Include full date with time
+                }));
+                
+                // Create an object to store the last data entry for each unique date
+                const paramValues = {};
+                extractedData.forEach(item => {
+                    const date = item.created_at.split('T')[0]; // Extract date without time
+                    paramValues[date] = item;  // Store the data entry for each date, overwriting for duplicated dates
+                });
+                
+                // Convert paramValues object to an array to match the previous structure
+                const paramValuesArray = Object.values(paramValues);
+                
+                // const extractedData = res.data.monitorParameterValues.map(item => ({
+                //     value: item.value?.device_data,
+                //     data: item.value,
+                //     created_at: item.created_at
+                // }));
+
+                setParamValues(paramValuesArray);
+                lastRecord = extractedData.slice(-1)[0];
+                setParamValue(lastRecord?.data);
+                console.log(lastRecord?.data, 'lastRecord?.value')
+                setPercent(lastRecord?.value?.percent_level || 0)
+            }
+
+            const alertRes = await CrudService.getDeviceAlerts(id);
+            setAlerts(alertRes.data);
+
+            const alertRulesRes = await CrudService.getAlertRules(id);
+            setAlertRules(alertRulesRes.data);
+
+            const serviceRequestssRes = await CrudService.getServiceRequests(id);
+            setServiceRequests(serviceRequestssRes.data)
+
+            let deviceThresholds = res?.data?.deviceThresholds;
+            for(let deviceThreshold of deviceThresholds) {
+                if(deviceThreshold.threshold_type_id === 1) {
+                    let color = parseInt(lastRecord?.data?.device_data?.percent_level) > parseInt(deviceThreshold.threshold_value) ? 'red' : 'blue'
+                    setPillbarColor(color)
+                }
+            }            
+        } catch (err) {
+            console.error(err);
         }
-        setName({text: res.data.attributes?.name})
-        setNotified(res.data.attributes?.is_notified);
-        if (res?.data?.monitorParameterValues) {     
-            const extractedData = res.data.monitorParameterValues.map(item => ({
-                value: item.value?.device_data,
-                data: item.value,
-                id: item.id,
-                created_at: new Date(item.created_at).toISOString()  // Include full date with time
-            }));
-            
-            // Create an object to store the last data entry for each unique date
-            const paramValues = {};
-            extractedData.forEach(item => {
-                const date = item.created_at.split('T')[0]; // Extract date without time
-                paramValues[date] = item;  // Store the data entry for each date, overwriting for duplicated dates
-            });
-            
-            // Convert paramValues object to an array to match the previous structure
-            const paramValuesArray = Object.values(paramValues);
-              
-            // const extractedData = res.data.monitorParameterValues.map(item => ({
-            //     value: item.value?.device_data,
-            //     data: item.value,
-            //     created_at: item.created_at
-            // }));
-
-            setParamValues(paramValuesArray);
-            const lastRecord = extractedData.slice(-1)[0];
-            setParamValue(lastRecord?.data);
-            console.log(lastRecord?.data, 'lastRecord?.value')
-            setPercent(lastRecord?.value?.percent_level || 0)
-        }
-
-        const alertRes = await CrudService.getDeviceAlerts(id);
-        setAlerts(alertRes.data);
-
-        const alertRulesRes = await CrudService.getAlertRules(id);
-        console.log(alertRulesRes, '-------------')
-        setAlertRules(alertRulesRes.data);
-    
-    } catch (err) {
-        console.error(err);
-      }
-    })();
-  }, [id]);
-  
+        })();
+    }, [id]);
+ 
     useEffect(() => {
         setTableData(getRows(paramValues));
     }, [paramValues]);
@@ -154,6 +168,10 @@ const ViewDevice = () => {
 
     useEffect(() => {
         setAlertRuleTableData(getAlertRuleRows(alertRules));
+    }, [alertRules]);
+
+    useEffect(() => {
+        setServiceRequestTableData(getServiceRequestRows(serviceRequests));
     }, [alertRules]);
 
     useEffect(() => {
@@ -243,7 +261,6 @@ const ViewDevice = () => {
             return null;
         }
     };
-    
 
     const getAlertRuleRows = (info) => {
         let updatedInfo = info.map((row) => {
@@ -307,6 +324,42 @@ const ViewDevice = () => {
         rows: alertRuleTableData, // Assuming tableData is your original data array
     };
 
+    const getServiceRequestRows = (info) => {
+        let updatedInfo = info.map((row) => {
+            console.log(row, '=============')
+            return {
+                id: row.attributes?.service_request_id,
+                user: row.attributes?.user?.name,
+                entityAddressItem: row.attributes?.EntityAddressItem?.name,
+                provider: row.attributes?.Provider?.provider_name,
+                serviceItem: row.attributes?.ServiceItem?.item_name,
+                status: (
+                    <Badge
+                      color={row.attributes?.StatusOption?.BadgeDetail?.color || 'primary'}
+                      variant={row.attributes?.StatusOption?.BadgeDetail?.variant}
+                      badgeContent={row.attributes?.StatusOption?.StatusType?.status_name}
+                      style={{marginLeft: '30px'}}
+                    >
+                    </Badge>
+                ),
+            };
+        });
+    
+        return updatedInfo;
+    };
+
+    const serviceRequestdataTableData = {
+        columns: [
+          { Header: "ID", accessor: "id" },
+          { Header: "Status", accessor: "status"},
+          { Header: "Entity Address Item", accessor: "entityAddressItem"},
+          { Header: "Provider", accessor: "provider"},
+          { Header: "Service Item", accessor: "serviceItem"},
+          { Header: "User", accessor: "user"},
+        ],
+        rows: serviceRequestTableData, // Assuming tableData is your original data array
+    };
+
     const getAlertRows = (info) => {
         let updatedInfo = info.map((row) => {
             const createdAt = row.attributes.created_at ? moment(row.attributes.created_at).format('MMMM DD, YYYY h:mm:ss A') : '';
@@ -339,12 +392,12 @@ const ViewDevice = () => {
 
     const alertColumns = [
         { Header: "ID", accessor: "id", width: "5%" },
-        { Header: "Status", accessor: "status", width: "5%" },
+        { Header: "Status", accessor: "status", width: "10%" },
         { Header: "Alert Type", accessor: "alert_type", width: "15%" },
         { Header: "Sub Type", accessor: "sub_type", width: "15%" },
         { Header: "Device", accessor: "device", width: "15%" },
-        { Header: "Created At", accessor: "created_at" },
-        { Header: "Updated At", accessor: "updated_at" },
+        { Header: "Created At", accessor: "created_at", width: "20%" },
+        { Header: "Updated At", accessor: "updated_at", width: "20%" },
         {
             Header: "actions",
             disableSortBy: true,
@@ -371,7 +424,7 @@ const ViewDevice = () => {
         },
         bar: {
             borderRadius: '5px',
-            backgroundColor: parseInt(paramValue?.device_data?.percent_level) > parseInt(percentThreshold) ? 'red' : 'blue',
+            backgroundColor: pillbarColor
         },
     })(LinearProgress);
 
@@ -443,7 +496,6 @@ const ViewDevice = () => {
         ...(expandedIndexArray[index] && { minHeight: '100%' }),
     });
 
-
     const styles = {
         table: {
             padding: 0,
@@ -455,12 +507,33 @@ const ViewDevice = () => {
             width: '50%', // Allow the column to size itself based on content
         },
     };
-    
 
     const handleViewClose = () => {
         setOpenViewModal(false);
     };
 
+    const handleServiceModalClose = () => {
+        setServiceModal(false);
+    };
+
+    const handleProviderSwitchChange = async (association_id, newOnOffValue) => {
+        setProvidersState(prevState =>
+            prevState.map(provider =>
+                provider.association_id === association_id
+                    ? { ...provider, on_off: newOnOffValue }
+                    : provider
+            )
+        );
+
+        try {
+            await CrudService.setProviderActive({
+                association_id,
+                on_off: newOnOffValue
+            });
+        } catch (error) {
+            console.error('Error updating provider:', error);
+        }
+    };
 
     return (
         <DashboardLayout>
@@ -641,18 +714,52 @@ const ViewDevice = () => {
                                                                         </MDTypography> 
                                                                         <MDTypography fontSize={1}>Signal Strength: {paramValue?.tx_signal}</MDTypography> 
                                                                         <MDTypography fontSize={1}>WiFi Signal: {paramValue?.wifi_signal}</MDTypography> 
+                                                                        <MDTypography fontSize={1}>Reported: {paramValue?.tx_reported}</MDTypography> 
                                                                         <MDTypography fontSize={1}>Last Reported: {paramValue?.reported}</MDTypography> 
                                                                         <MDTypography fontSize={1}>Last Updated: {moment(paramValue?.reported, 'MMM Do, h:mm A').fromNow()}</MDTypography>
+                                                                        <MDTypography fontSize={1}>Last Updated on: {paramValue?.last_updated_on}</MDTypography>
                                                                     </>
                                                                 )}
                                                                 {index === 1 && (
                                                                     <>
-                                                                        {device?.entityAddressItemProviders.map((provider) => (  
-                                                                            <MDBox key={provider?.Provider?.id} sx={{ display: 'flex', alignItems: 'center' }}>  
-                                                                                <Avatar src={provider?.Provider?.logo_url} alt={provider?.Provider?.provider_name} sx={{ width: 60, height: 60 }} />
-                                                                                <MDTypography ml={2}>{provider?.Provider?.provider_name}</MDTypography>  
-                                                                            </MDBox>  
-                                                                        ))}  
+                                                                        <MDBox>
+                                                                            <Grid container justifyContent="space-between">
+                                                                                <Grid item>
+                                                                                    <MDTypography variant="h6">Provider</MDTypography>
+                                                                                </Grid>
+                                                                                <Grid item>
+                                                                                    <MDTypography variant="h6" mr={3} >Share</MDTypography>
+                                                                                </Grid>
+                                                                            </Grid>
+                                                                            {device?.entityAddressItemProviders.map(provider => (
+                                                                                <MDBox key={provider?.association_id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                                                                                    <MDBox sx={{ display: 'flex', alignItems: 'center' }}>
+                                                                                        <Avatar
+                                                                                            src={provider?.Provider?.logo_url}
+                                                                                            alt={provider?.Provider?.provider_name}
+                                                                                            sx={{ width: 60, height: 60 }}
+                                                                                        />
+                                                                                        <MDTypography ml={2}>{provider?.Provider?.provider_name}</MDTypography>
+                                                                                    </MDBox>
+                                                                                    <FormControlLabel
+                                                                                        control={
+                                                                                            <Switch
+                                                                                                checked={
+                                                                                                    providersState.find(p => p.association_id === provider.association_id)?.on_off
+                                                                                                }
+                                                                                                onChange={async (e) => {
+                                                                                                    const newOnOffValue = e.target.checked;
+                                                                                                    await handleProviderSwitchChange(provider.association_id, newOnOffValue);
+                                                                                                }}
+                                                                                            />
+                                                                                        }
+                                                                                        label=""
+                                                                                        sx={{ mt: 5, mb: 5 }}
+                                                                                    />
+                                                                                </MDBox>
+                                                                            ))}
+                                                                        </MDBox>
+                                                                                                                                             
                                                                     </>
                                                                 )}
                                                                 {index === 2 && device && device.contacts && device.contacts.map((contact, contactindex) => (
@@ -719,6 +826,7 @@ const ViewDevice = () => {
                                                                 )}
                                                                 {index === 2 && 
                                                                 <>
+                                                                    <MDButton color="dark" onClick={() => setServiceModal(true)}>Create Service Request</MDButton>
                                                                     {/* {(
                                                                         device?.alerts ? (
                                                                             device?.alerts.map(alert => (
@@ -768,20 +876,37 @@ const ViewDevice = () => {
                                                 width: '80%', // Set the desired width here
                                                 backgroundColor: 'white',
                                                 p: 4,
-                                                maxHeight: '70vh', // Set max height to enable scrolling
-                                                overflowY: 'auto',    
-                                                overflowX: 'hidden'                                          
                                             }}
                                         >
-                                            <CardContent>   
                                                 <AlertRulesForm alertRule={alertRule} setAlertRules={setAlertRules} deviceId={id} setOpenViewModal={setOpenViewModal}   />
-                                            </CardContent>
+                                        </Card>
+                                    </Modal>
+
+                                    <Modal
+                                        open={openServiceModal}
+                                        onClose={handleServiceModalClose}
+                                        aria-labelledby="modal-title"
+                                        aria-describedby="modal-description"
+                                    >
+                                        <Card
+                                            sx={{
+                                                position: 'absolute',
+                                                top: '50%',
+                                                left: '50%',
+                                                transform: 'translate(-50%, -50%)',
+                                                width: '80%', // Set the desired width here
+                                                backgroundColor: 'white',
+                                                p: 4,
+                                            }}
+                                        >
+                                                <ServiceRequestsForm device={device?.attributes} setServiceModal={setServiceModal}   />
                                         </Card>
                                     </Modal>
                                     <Tabs value={selectedTab} onChange={handleTabChange} aria-label="Tabs">
                                         <Tab label="Logs" />
                                         <Tab label="Alerts" />
                                         <Tab label="Alert Rules" />
+                                        <Tab label="Service Request" />
                                     </Tabs>
 
                                     {
@@ -821,6 +946,7 @@ const ViewDevice = () => {
                                             <MDBox pt={6} pb={3}>
                                                 <MDBox mb={3}>
                                                     <CollapsibleTable
+                                                        width="100%"
                                                         data={alertTableData}
                                                         columns={alertColumns}
                                                         clickViewHandler={clickViewHandler}
@@ -850,6 +976,12 @@ const ViewDevice = () => {
                                                 </MDButton>
                                             </MDBox>
                                             <DataTable table={alertRuledataTableData} canSearch={true}/>                                        
+                                        </>
+                                    }
+                                    {
+                                        selectedTab === 3 && 
+                                        <>
+                                            <DataTable table={serviceRequestdataTableData} canSearch={true}/>                                        
                                         </>
                                     }
 

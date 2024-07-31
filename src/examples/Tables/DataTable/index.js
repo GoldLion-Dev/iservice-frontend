@@ -47,6 +47,7 @@ function DataTable({
   pagination,
   isSorted,
   noEndBorder,
+  onRowClick
 }) {
   const defaultValue = entriesPerPage.defaultValue ? entriesPerPage.defaultValue : 10;
   const entries = entriesPerPage.entries
@@ -204,7 +205,14 @@ function DataTable({
           {page.map((row, key) => {
             prepareRow(row);
             return (
-              <TableRow {...row.getRowProps()}>
+              <TableRow 
+                {...row.getRowProps()} onClick={() => onRowClick(row.original.id)}
+                sx={{
+                  cursor: "pointer",
+                  '&:hover': {
+                    backgroundColor: "rgba(0, 0, 0, 0.04)",
+                  },
+                }}>
                 {row.cells.map((cell) => (
                   <DataTableBodyCell
                     noBorder={noEndBorder && rows.length - 1 === key}
@@ -275,6 +283,7 @@ DataTable.defaultProps = {
   pagination: { variant: "gradient", color: "info" },
   isSorted: true,
   noEndBorder: false,
+  onRowClick: () => {},
 };
 
 // Typechecking props for the DataTable
@@ -304,6 +313,7 @@ DataTable.propTypes = {
   }),
   isSorted: PropTypes.bool,
   noEndBorder: PropTypes.bool,
+  onRowClick: PropTypes.func
 };
 
 export default DataTable;

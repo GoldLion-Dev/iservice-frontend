@@ -96,6 +96,7 @@ import MessageTemplate from "cruds/message-management";
 import AlertManagement from "cruds/alert";
 import ProviderManagement from "cruds/provider-management";
 import SendGridManagement from "cruds/alert/sendgrid";
+import MapDeviceManagement from "cruds/device-management/internal-device-management/map-device";
 
 const routes = [
   {
@@ -278,6 +279,15 @@ const routes = [
     ]
   },
   { type: "divider", key: "divider-1" },
+  {
+    type: "collapse",
+    name: "Map Device",
+    route: "/map-device",
+    component: <MapDeviceManagement />,
+    key: "map-device",
+    icon: <FontAwesomeIcon icon={faUser} size="sm" />,
+    noCollapse: true
+  },
   // {
   //   name: "SendGrid Activity",
   //   icon: <FontAwesomeIcon icon={faMessage} size="sm" />,

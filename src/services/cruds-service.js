@@ -185,6 +185,29 @@ class CrudService {
     return await HttpService.post(endpoint, payload);
   };
 
+  getServiceItems = async () => {
+    const endpoint = `modules/service_items`;
+    return await HttpService.get(endpoint);
+  };
+
+  getPriorities = async () => {
+    const endpoint = `modules/priorities`;
+    return await HttpService.get(endpoint);
+  };
+
+  ////////////// service reuqest ////////////////
+  
+  createServiceRequest = async (payload) => {
+    const endpoint = "service-request";
+    return await HttpService.post(endpoint, payload);
+  };
+
+  getServiceRequests = async (payload) => {
+    const endpoint = `service-request/${payload}`;
+    return await HttpService.get(endpoint);
+  };
+  ////////////// role //////////////
+
   deleteRole = async (id) => {
     const endpoint = `roles/${id}`;
     return await HttpService.delete(endpoint);
@@ -370,6 +393,12 @@ class CrudService {
     const endpoint = `providers/${id}`;
     return await HttpService.patch(endpoint, payload);
   };
+
+  setProviderActive = async (payload) => {
+    const endpoint = `providers/active-device`;
+    return await HttpService.post(endpoint, payload);
+  };
+
 
   // tag requests
   getTags = async () => {
